@@ -15,11 +15,11 @@ function pieceL() {
 }
 //J Piece
 interface pieceJ {
-    template: number[][];
+  template: number[][];
 }
 
 function pieceJ() {
-    this.template = [[1, 1, 0], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
+  this.template = [[1, 1, 0], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
 }
 function coordinates(x: number, y: number) {
   let xCoordinate = x.toString();
@@ -55,13 +55,15 @@ function setupBoard() {
       element.addEventListener("click", boxClicked);
       gameBoardHTML.appendChild(element);
       //make borders
-      if (i === 0 || j === 0 || j === boardWidth - 1) {
-        //add html class
-        element.classList.add("border");
+      if (i === boardHeight - 1 || j === 0 || j === boardWidth - 1) {
         //add object property for code computation
         array2d.push(3);
       } else {
         array2d.push(0);
+      }
+      if (i === 0 || j === 0 || j === boardWidth - 1) {
+        //add html class
+        element.classList.add("border");
       }
     }
     gameBoard.push(array2d);
@@ -92,37 +94,57 @@ generateNewPiece(newPieceJ);
 function moveRight() {
   for (let i = boardWidth - 2; i > 0; i--) {
     for (let j = 1; j < boardHeight - 1; j++) {
-        if (gameBoard[j][i] === 1 && gameBoard[j][i + 1] === 3) {
-          return;
-        } else if (gameBoard[j][i] === 1 && gameBoard[j][i + 1] === 0) {
-            //code to manipulate array
-            gameBoard[j].splice(i, 1, 0);
-            gameBoard[j].splice(i + 1, 1, 1);
-            //code to manipulate HTML
-            let cell: HTMLElement = document.getElementById(coordinates(i, j));
-            cell.classList.remove("moving-piece");
-            let cell2: HTMLElement = document.getElementById(coordinates(i + 1, j));
-            cell2.classList.add("moving-piece");
+      if (gameBoard[j][i] === 1 && gameBoard[j][i + 1] === 3) {
+        return;
+      } else if (gameBoard[j][i] === 1 && gameBoard[j][i + 1] === 0) {
+        //code to manipulate array
+        gameBoard[j].splice(i, 1, 0);
+        gameBoard[j].splice(i + 1, 1, 1);
+        //code to manipulate HTML
+        let cell: HTMLElement = document.getElementById(coordinates(i, j));
+        cell.classList.remove("moving-piece");
+        let cell2: HTMLElement = document.getElementById(coordinates(i + 1, j));
+        cell2.classList.add("moving-piece");
       }
     }
   }
 }
 
 function moveLeft() {
-    for (let i = 1; i < boardWidth - 1; i++) {
-      for (let j = 1; j < boardHeight - 1; j++) {
-          if (gameBoard[j][i] === 1 && gameBoard[j][i - 1] === 3) {
-            return;
-          } else if (gameBoard[j][i] === 1 && gameBoard[j][i - 1] === 0) {
-              //code to manipulate array
-              gameBoard[j].splice(i, 1, 0);
-              gameBoard[j].splice(i - 1, 1, 1);
-              //code to manipulate HTML
-              let cell: HTMLElement = document.getElementById(coordinates(i, j));
-              cell.classList.remove("moving-piece");
-              let cell2: HTMLElement = document.getElementById(coordinates(i - 1, j));
-              cell2.classList.add("moving-piece");
-        }
+  for (let i = 1; i < boardWidth - 1; i++) {
+    for (let j = 1; j < boardHeight - 1; j++) {
+      if (gameBoard[j][i] === 1 && gameBoard[j][i - 1] === 3) {
+        return;
+      } else if (gameBoard[j][i] === 1 && gameBoard[j][i - 1] === 0) {
+        //code to manipulate array
+        gameBoard[j].splice(i, 1, 0);
+        gameBoard[j].splice(i - 1, 1, 1);
+        //code to manipulate HTML
+        let cell: HTMLElement = document.getElementById(coordinates(i, j));
+        cell.classList.remove("moving-piece");
+        let cell2: HTMLElement = document.getElementById(coordinates(i - 1, j));
+        cell2.classList.add("moving-piece");
       }
     }
   }
+}
+//time for gravity
+function moveDown() {
+  for (let i = 1; i < boardHeight - 1; i++) {
+    for (let j = boardWidth - 2; j > 0; j--) {
+      if (gameBoard[i][j] === 1 && gameBoard[i - 1][j] === 3) {
+        return;
+        //add ability to detect other pieces too later
+      } else if (gameBoard[i][j] === 1 && gameBoard[i - 1][j] === 0) {
+        //code to manipulate array
+        gameBoard[i].splice(j, 1, 0);
+        gameBoard[i - 1].splice(j, 1, 1);
+        //code to manipulate HTML
+        let cell: HTMLElement = document.getElementById(coordinates(j, i));
+        cell.classList.remove("moving-piece");
+        let cell2: HTMLElement = document.getElementById(coordinates(j, i - 1));
+        cell2.classList.add("moving-piece");
+      }
+    }
+  }
+}
