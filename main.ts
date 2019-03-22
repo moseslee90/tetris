@@ -5,9 +5,11 @@ let spawnY: number = 17;
 let gameBoardDivs: NodeList = document.querySelectorAll("#game-board div");
 let boardHeight: number = 21;
 let boardWidth: number = 12;
+let gravity;
 //L Piece
 interface pieceL {
   template: number[][];
+
 }
 
 function pieceL() {
@@ -55,7 +57,9 @@ function setupBoard() {
       element.addEventListener("click", boxClicked);
       gameBoardHTML.appendChild(element);
       //make borders
-      if (i === boardHeight - 1 || j === 0 || j === boardWidth - 1) {
+      if (i === boardHeight - 1){
+        array2d.push(2);
+      } else if (j === 0 || j === boardWidth - 1) {
         //add object property for code computation
         array2d.push(3);
       } else {
@@ -132,6 +136,22 @@ function moveLeft() {
 function moveDown() {
   for (let i = 1; i < boardHeight - 1; i++) {
     for (let j = boardWidth - 2; j > 0; j--) {
+        if (gameBoard[i][j] === 1 && gameBoard[i - 1][j] === 2) {
+            //turn piece into fixed piece
+            clearInterval(gravity);
+            for (let i = 1; i < boardHeight - 1; i++) {
+                for (let j = boardWidth - 2; j > 0; j--) {
+                    if(gameBoard[i][j] === 1){
+                        gameBoard[i].splice(j, 1, 2);
+                        let cell: HTMLElement = document.getElementById(coordinates(j, i));
+                        cell.classList.remove("moving-piece");
+                        cell.classList.add("fixed-piece");
+                    }
+                }
+            }
+            goGoGravity();
+        }
+
       if (gameBoard[i][j] === 1 && gameBoard[i - 1][j] === 3) {
         return;
         //add ability to detect other pieces too later
@@ -147,4 +167,8 @@ function moveDown() {
       }
     }
   }
+}
+//gravity in intervals
+function goGoGravity() {
+  gravity = setInterval(moveDown, 800);
 }
