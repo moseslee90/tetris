@@ -5,6 +5,6 @@
     border: 1px solid black;
     margin: 0px 2px;
 }
-p {
-    
+.moving-piece {
+    background-color: red;
 }
