@@ -7,13 +7,18 @@ let boardHeight: number = 21;
 let boardWidth: number = 12;
 
 interface pieceL {
-    template: number[][];
+  template: number[][];
 }
 
 function pieceL() {
-    this.template = [[0, 1, 1], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
+  this.template = [[0, 1, 1], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
 }
-
+function coordinates(x: number, y: number) {
+  let xCoordinate = x.toString();
+  let yCoordinate = y.toString();
+  let coordinates = xCoordinate + "-" + yCoordinate;
+  return coordinates;
+}
 function boxClicked() {
   let element: HTMLDivElement = this;
   let x: number = parseInt(element.getAttribute("data-x"));
@@ -27,11 +32,10 @@ function setupBoard() {
   gameBoardHTML.style.width = gridSquareDimension * boardWidth + "px";
   gameBoardHTML.style.height = gridSquareDimension * boardHeight + "px";
   gameBoard = [];
-  //creates board from bottom right to top left, 
+  //creates board from bottom right to top left,
   for (let i = boardHeight - 1; i > -1; i--) {
     let array2d: number[] = [];
     for (let j = 0; j < boardWidth; j++) {
-      array2d.push(0);
       var element = document.createElement("div");
       var paragraph = document.createElement("p");
       element.setAttribute("id", j.toString() + "-" + i.toString());
@@ -43,10 +47,13 @@ function setupBoard() {
       element.addEventListener("click", boxClicked);
       gameBoardHTML.appendChild(element);
       //make borders
-      if ( i === 0 || j === 0 || j === boardWidth - 1) {
-          //add html class
-          element.classList.add("border");
-          //add object property for code computation
+      if (i === 0 || j === 0 || j === boardWidth - 1) {
+        //add html class
+        element.classList.add("border");
+        //add object property for code computation
+        array2d.push(3);
+      } else {
+        array2d.push(0);
       }
     }
     gameBoard.push(array2d);
@@ -54,32 +61,41 @@ function setupBoard() {
 }
 setupBoard();
 function generateNewPiece(piece: pieceL) {
-    let pieceTemplate: number[][] = piece.template;
-    for (let i = 0; i < pieceTemplate.length; i++) {
-      for (let j = 0; j < pieceTemplate[i].length; j++) {
-        if (pieceTemplate[i][j] === 1) {
-          let yCoordinate: number = spawnY + i;
-          let xCoordinate: number = spawnX + j;
-          gameBoard[yCoordinate][xCoordinate] = pieceTemplate[i][j];
-          let cellHTML: HTMLElement = document.getElementById(
-            xCoordinate.toString() + "-" + yCoordinate.toString()
-          );
-          cellHTML.classList.add("moving-piece");
-          //   element.classList.add("moving-piece");
-        }
+  let pieceTemplate: number[][] = piece.template;
+  for (let i = 0; i < pieceTemplate.length; i++) {
+    for (let j = 0; j < pieceTemplate[i].length; j++) {
+      if (pieceTemplate[i][j] === 1) {
+        let yCoordinate: number = spawnY + i;
+        let xCoordinate: number = spawnX + j;
+        gameBoard[yCoordinate][xCoordinate] = pieceTemplate[i][j];
+        let cellHTML: HTMLElement = document.getElementById(
+          xCoordinate.toString() + "-" + yCoordinate.toString()
+        );
+        cellHTML.classList.add("moving-piece");
+        //   element.classList.add("moving-piece");
       }
     }
+  }
 }
 let newPieceL = new pieceL();
 generateNewPiece(newPieceL);
 
 function moveRight() {
-    for (let i = boardWidth - 2; i > 0; i--) {
-        for (let j = 1; j < boardHeight - 1; j++) {
-            if (gameBoard[j][i] === 1 && gameBoard[j][i+1] === 0){
-                gameBoard[j].splice(i,1,0);
-                gameBoard[j].splice(i+1,1,1);
-            }
-        }
+  for (let i = boardWidth - 2; i > 0; i--) {
+      let wallFound = false;
+    for (let j = 1; j < boardHeight - 1; j++) {
+        if (gameBoard[j][i] === 1 && gameBoard[j][i + 1] === 3) {
+          return;
+        } else if (gameBoard[j][i] === 1 && gameBoard[j][i + 1] === 0) {
+            //code to manipulate array
+            gameBoard[j].splice(i, 1, 0);
+            gameBoard[j].splice(i + 1, 1, 1);
+            //code to manipulate HTML
+            let cell: HTMLElement = document.getElementById(coordinates(i, j));
+            cell.classList.remove("moving-piece");
+            let cell2: HTMLElement = document.getElementById(coordinates(i + 1, j));
+            cell2.classList.add("moving-piece");
+      }
     }
+  }
 }
