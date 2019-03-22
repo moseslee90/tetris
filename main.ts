@@ -1,5 +1,7 @@
 let gameBoard: number[][];
-
+let sampleBlock: number [][] = [[0,1,1],[0,1,0],[0,1,0],[0,0,0]];
+let spawnX: number = 5;
+let spawnY: number = 16;
 function boxClicked() {
     let element: HTMLDivElement = this;
     let x: number = parseInt( element.getAttribute("data-x") );
@@ -34,3 +36,9 @@ function setupBoard() {
     }
   }
   setupBoard();
+
+  for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 3; j++) {
+          gameBoard[spawnY + i][spawnX + j] = sampleBlock[i][j];
+      }
+  }

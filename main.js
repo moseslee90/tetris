@@ -1,4 +1,7 @@
 var gameBoard;
+var sampleBlock = [[0, 1, 1], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
+var spawnX = 5;
+var spawnY = 16;
 function boxClicked() {
     var element = this;
     var x = parseInt(element.getAttribute("data-x"));
@@ -31,3 +34,8 @@ function setupBoard() {
     }
 }
 setupBoard();
+for (var i = 0; i < 4; i++) {
+    for (var j = 0; j < 3; j++) {
+        gameBoard[spawnY + i][spawnX + j] = sampleBlock[i][j];
+    }
+}
