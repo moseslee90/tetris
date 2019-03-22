@@ -5,13 +5,21 @@ let spawnY: number = 17;
 let gameBoardDivs: NodeList = document.querySelectorAll("#game-board div");
 let boardHeight: number = 21;
 let boardWidth: number = 12;
-
+//L Piece
 interface pieceL {
   template: number[][];
 }
 
 function pieceL() {
   this.template = [[0, 1, 1], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
+}
+//J Piece
+interface pieceJ {
+    template: number[][];
+}
+
+function pieceJ() {
+    this.template = [[1, 1, 0], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
 }
 function coordinates(x: number, y: number) {
   let xCoordinate = x.toString();
@@ -78,11 +86,11 @@ function generateNewPiece(piece: pieceL) {
   }
 }
 let newPieceL = new pieceL();
-generateNewPiece(newPieceL);
+let newPieceJ = new pieceJ();
+generateNewPiece(newPieceJ);
 
 function moveRight() {
   for (let i = boardWidth - 2; i > 0; i--) {
-      let wallFound = false;
     for (let j = 1; j < boardHeight - 1; j++) {
         if (gameBoard[j][i] === 1 && gameBoard[j][i + 1] === 3) {
           return;
@@ -99,3 +107,22 @@ function moveRight() {
     }
   }
 }
+
+function moveLeft() {
+    for (let i = 1; i < boardWidth - 1; i++) {
+      for (let j = 1; j < boardHeight - 1; j++) {
+          if (gameBoard[j][i] === 1 && gameBoard[j][i - 1] === 3) {
+            return;
+          } else if (gameBoard[j][i] === 1 && gameBoard[j][i - 1] === 0) {
+              //code to manipulate array
+              gameBoard[j].splice(i, 1, 0);
+              gameBoard[j].splice(i - 1, 1, 1);
+              //code to manipulate HTML
+              let cell: HTMLElement = document.getElementById(coordinates(i, j));
+              cell.classList.remove("moving-piece");
+              let cell2: HTMLElement = document.getElementById(coordinates(i - 1, j));
+              cell2.classList.add("moving-piece");
+        }
+      }
+    }
+  }
