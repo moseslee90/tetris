@@ -1,0 +1,10 @@
+.box {
+    height: 48px;
+    display: inline-block;
+    width: 48px;
+    border: 1px solid black;
+    margin: 0px 2px;
+}
+p {
+    
+}
