@@ -30,10 +30,10 @@ interface pieceL {
 }
 
 function pieceL() {
-  this.template = [[0, 1, 1], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
-  this.templateTwo = [[1, 0, 0], [1, 1, 1], [0, 0, 0], [0, 0, 0]];
-  this.templateThree = [[0, 1, 0], [0, 1, 0], [1, 1, 0], [0, 0, 0]];
-  this.templateFour = [[0, 0, 0], [1, 1, 1], [0, 0, 1], [0, 0, 0]];
+  this.template = [[0, 1, 1], [0, 4, 0], [0, 1, 0], [0, 0, 0]];
+  this.templateTwo = [[1, 0, 0], [1, 4, 1], [0, 0, 0], [0, 0, 0]];
+  this.templateThree = [[0, 1, 0], [0, 4, 0], [1, 1, 0], [0, 0, 0]];
+  this.templateFour = [[0, 0, 0], [1, 4, 1], [0, 0, 1], [0, 0, 0]];
 }
 //J Piece
 interface pieceJ {
@@ -191,30 +191,23 @@ function moveDown() {
       clearInterval(gravity);
       //reset piece rotation state for the next piece
       pieceRotationState = 1;
+      //turn piece into fixed piece
+      for (let i = 1; i < boardHeight - 1; i++) {
+        for (let j = boardWidth - 2; j > 0; j--) {
+          if (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) {
+            gameBoard[i].splice(j, 1, 2);
+            let cell: HTMLElement = document.getElementById(coordinates(j, i));
+            cell.classList.remove("moving-piece");
+            cell.classList.add("fixed-piece");
+          }
+        }
+      }
+      //code to generate new piece here
+      goGoGravity();
+      return;
     }
     //fix and turn moving-pieces to fixed-pieces
     for (let j = boardWidth - 2; j > 0; j--) {
-      if (
-        (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) &&
-        gameBoard[i - 1][j] === 2
-      ) {
-        //turn piece into fixed piece
-        for (let i = 1; i < boardHeight - 1; i++) {
-          for (let j = boardWidth - 2; j > 0; j--) {
-            if (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) {
-              gameBoard[i].splice(j, 1, 2);
-              let cell: HTMLElement = document.getElementById(
-                coordinates(j, i)
-              );
-              cell.classList.remove("moving-piece");
-              cell.classList.add("fixed-piece");
-            }
-          }
-        }
-        //code to generate new piece here
-        goGoGravity();
-      }
-
       if (
         (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) &&
         gameBoard[i - 1][j] === 3
