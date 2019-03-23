@@ -6,6 +6,23 @@ let gameBoardDivs: NodeList = document.querySelectorAll("#game-board div");
 let boardHeight: number = 21;
 let boardWidth: number = 12;
 let gravity;
+let gameBoardHTML = document.getElementById("game-board");
+
+function keydownEvent(event) {
+  var x = event.keyCode || event.which;
+  console.log(x+" was pressed");
+  if (x === 65) {
+    moveLeft();
+  }
+  if (x === 68) {
+    moveRight();
+  }
+  if (x === 83){
+    moveDown();
+  }
+}
+document.onkeydown = keydownEvent;
+
 //L Piece
 interface pieceL {
   template: number[][];
@@ -38,7 +55,6 @@ function boxClicked() {
 
 function setupBoard() {
   let gridSquareDimension = 54;
-  let gameBoardHTML = document.getElementById("game-board");
   gameBoardHTML.style.width = gridSquareDimension * boardWidth + "px";
   gameBoardHTML.style.height = gridSquareDimension * boardHeight + "px";
   gameBoard = [];
@@ -135,10 +151,20 @@ function moveLeft() {
 //time for gravity
 function moveDown() {
   for (let i = 1; i < boardHeight - 1; i++) {
+    //scan entire row first before moving to execute translation on individual cells
+    let floorFound: boolean = false;
+    for (let j = boardWidth - 2; j > 0; j--) {
+      if (gameBoard[i][j] === 1 && gameBoard[i - 1][j] === 2) {
+        floorFound = true;
+      }
+    }
+    if (floorFound === true){
+      clearInterval(gravity);
+    }
+    //fix and turn moving-pieces to fixed-pieces
     for (let j = boardWidth - 2; j > 0; j--) {
         if (gameBoard[i][j] === 1 && gameBoard[i - 1][j] === 2) {
             //turn piece into fixed piece
-            clearInterval(gravity);
             for (let i = 1; i < boardHeight - 1; i++) {
                 for (let j = boardWidth - 2; j > 0; j--) {
                     if(gameBoard[i][j] === 1){
@@ -149,6 +175,7 @@ function moveDown() {
                     }
                 }
             }
+            //code to generate new piece here
             goGoGravity();
         }
 
