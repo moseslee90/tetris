@@ -1,32 +1,21 @@
 let gameBoard: number[][];
-let sampleBlock: number[][] = [[0, 1, 1], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
 let spawnX: number = 4;
 let spawnY: number = 17;
 let gameBoardDivs: NodeList = document.querySelectorAll("#game-board div");
 let boardHeight: number = 21;
 let boardWidth: number = 12;
 let gravity;
-let gameBoardHTML = document.getElementById("game-board");
-let pieceRotationState = 1;
+let gameBoardHTML: HTMLElement = document.getElementById("game-board");
+let pieceRotationState: number = 1;
+let currentPiece: tetronomino;
 
-function keydownEvent(event) {
-  var x = event.keyCode || event.which;
-  console.log(x + " was pressed");
-  if (x === 65) {
-    moveLeft();
-  }
-  if (x === 68) {
-    moveRight();
-  }
-  if (x === 83) {
-    moveDown();
-  }
-}
-document.onkeydown = keydownEvent;
-
-//L Piece
-interface pieceL {
+//generic Piece
+interface tetronomino {
   template: number[][];
+  templateTwo: number[][];
+  templateThree: number[][];
+  templateFour: number[][];
+  anchor: number[];
 }
 
 function pieceL() {
@@ -34,10 +23,7 @@ function pieceL() {
   this.templateTwo = [[1, 0, 0], [1, 4, 1], [0, 0, 0], [0, 0, 0]];
   this.templateThree = [[0, 1, 0], [0, 4, 0], [1, 1, 0], [0, 0, 0]];
   this.templateFour = [[0, 0, 0], [1, 4, 1], [0, 0, 1], [0, 0, 0]];
-}
-//J Piece
-interface pieceJ {
-  template: number[][];
+  this.anchor = [-1, -1];
 }
 
 function pieceJ() {
@@ -94,14 +80,18 @@ function setupBoard() {
   }
 }
 setupBoard();
-function generateNewPiece(piece: pieceL) {
-  let pieceTemplate: number[][] = piece.template;
-  for (let i = 0; i < pieceTemplate.length; i++) {
-    for (let j = 0; j < pieceTemplate[i].length; j++) {
-      if (pieceTemplate[i][j] === 1 || pieceTemplate[i][j] === 4) {
-        let yCoordinate: number = spawnY + i;
-        let xCoordinate: number = spawnX + j;
-        gameBoard[yCoordinate][xCoordinate] = pieceTemplate[i][j];
+function generateNewPiece(
+  template: number[][],
+  positionX: number,
+  positionY: number
+) {
+  //function generates a new piece based on the template given, at the specified location entered, with the position being the left corner of the template
+  for (let i = 0; i < template.length; i++) {
+    for (let j = 0; j < template[i].length; j++) {
+      if (template[i][j] === 1 || template[i][j] === 4) {
+        let yCoordinate: number = positionY + i;
+        let xCoordinate: number = positionX + j;
+        gameBoard[yCoordinate][xCoordinate] = template[i][j];
         let cellHTML: HTMLElement = document.getElementById(
           coordinates(xCoordinate, yCoordinate)
         );
@@ -111,10 +101,6 @@ function generateNewPiece(piece: pieceL) {
     }
   }
 }
-let newPieceL = new pieceL();
-let newPieceJ = new pieceJ();
-generateNewPiece(newPieceJ);
-
 function moveRight() {
   for (let i = boardWidth - 2; i > 0; i--) {
     for (let j = 1; j < boardHeight - 1; j++) {
@@ -235,14 +221,94 @@ function moveDown() {
     }
   }
 }
-function rotatePiece(state: number) {
-  //clear piece currently on board
+function rotatePiece(tetronomino: tetronomino) {
   //get reference position of anchor
-  if (state === 1) {
-    //paste state 2 of piece and update state to 2
+  clearInterval(gravity);
+  for (let i = 1; i < boardWidth - 1; i++) {
+    for (let j = 1; j < boardHeight - 1; j++) {
+      if (gameBoard[j][i] === 4) {
+        console.log("anchor found at " + i + "-" + j);
+        let anchorX = tetronomino.anchor[1];
+        let anchorY = tetronomino.anchor[0];
+        let xCoordinate = i + anchorX;
+        let yCoordinate = j + anchorY;
+        //clear ONEs currently on board
+        
+        for (let k = 1; k < boardWidth - 1; k++) {
+          for (let l = 1; l < boardHeight - 1; l++) {
+            if (gameBoard[l][k] === 1) {
+              gameBoard[l].splice(k, 1, 0);
+              let cell: HTMLElement = document.getElementById(coordinates(k, l));
+              cell.classList.remove("moving-piece");
+            }
+          }
+        }
+        //replace ONEs around anchor
+        switch (pieceRotationState) {
+          case 1:
+            generateNewPiece(
+              currentPiece.templateTwo,
+              xCoordinate,
+              yCoordinate
+            );
+            break;
+          case 2:
+            generateNewPiece(
+              currentPiece.templateThree,
+              xCoordinate,
+              yCoordinate
+            );
+            break;
+          case 3:
+            generateNewPiece(
+              currentPiece.templateFour,
+              xCoordinate,
+              yCoordinate
+            );
+            break;
+          case 4:
+            generateNewPiece(currentPiece.template, xCoordinate, yCoordinate);
+            break;
+
+          default:
+            pieceRotationState = 0;
+            break;
+        }
+        pieceRotationState++;
+        goGoGravity();
+        return;
+      }
+    }
   }
 }
 //gravity in intervals
 function goGoGravity() {
   gravity = setInterval(moveDown, 800);
 }
+function spawnNewPiece() {
+  //encapsulate this later in a function that randomly creates new pieces and spawns them.
+  let newPiece = new pieceL();
+  //code to generate a new piece at spawn point
+  generateNewPiece(newPiece.template, spawnX, spawnY);
+  currentPiece = newPiece;
+}
+
+spawnNewPiece();
+
+function keydownEvent(event) {
+  var x = event.keyCode || event.which;
+  console.log(x + " was pressed");
+  if (x === 65) {
+    moveLeft();
+  }
+  if (x === 68) {
+    moveRight();
+  }
+  if (x === 83) {
+    moveDown();
+  }
+  if (x === 219){
+    rotatePiece(currentPiece);
+  }
+}
+document.onkeydown = keydownEvent;
