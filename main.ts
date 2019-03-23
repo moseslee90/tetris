@@ -6,7 +6,7 @@ let boardHeight: number = 21;
 let boardWidth: number = 12;
 let gravity;
 let gameBoardHTML: HTMLElement = document.getElementById("game-board");
-let pieceRotationState: number = 1;
+let pieceRotationState: number = 4;
 let currentPiece: tetronomino;
 
 //generic Piece
@@ -17,7 +17,7 @@ interface tetronomino {
   templateFour: number[][];
   anchor: number[];
 }
-
+//template 1 to 4 go in clockwise
 function pieceL() {
   this.template = [[0, 1, 1], [0, 4, 0], [0, 1, 0], [0, 0, 0]];
   this.templateTwo = [[1, 0, 0], [1, 4, 1], [0, 0, 0], [0, 0, 0]];
@@ -27,7 +27,35 @@ function pieceL() {
 }
 
 function pieceJ() {
-  this.template = [[1, 1, 0], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
+  this.template = [[1, 1, 0], [0, 4, 0], [0, 1, 0], [0, 0, 0]];
+  this.templateTwo = [[0, 0, 0], [1, 4, 1], [1, 0, 0], [0, 0, 0]];
+  this.templateThree = [[0, 1, 0], [0, 4, 0], [0, 1, 1], [0, 0, 0]];
+  this.templateFour = [[0, 0, 1], [1, 4, 1], [0, 0, 0], [0, 0, 0]];
+  this.anchor = [-1, -1];
+}
+
+function pieceO() {
+  this.template = [[1, 1, 0], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
+  this.templateTwo = [[1, 1, 0], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
+  this.templateThree = [[1, 1, 0], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
+  this.templateFour = [[1, 1, 0], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
+  this.anchor = [-1, -1];
+}
+
+function pieceS() {
+  this.template = [[1, 1, 0], [0, 4, 1], [0, 0, 0], [0, 0, 0]];
+  this.templateTwo = [[0, 1, 0], [1, 4, 0], [1, 0, 0], [0, 0, 0]];
+  this.templateThree = [[1, 1, 0], [0, 4, 1], [0, 0, 0], [0, 0, 0]];
+  this.templateFour = [[0, 1, 0], [1, 4, 0], [1, 0, 0], [0, 0, 0]];
+  this.anchor = [-1, -1];
+}
+
+function pieceZ() {
+  this.template = [[0, 1, 1], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
+  this.templateTwo = [[1, 0, 0], [1, 4, 0], [0, 1, 0], [0, 0, 0]];
+  this.templateThree = [[0, 1, 1], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
+  this.templateFour = [[1, 0, 0], [1, 4, 0], [0, 1, 0], [0, 0, 0]];
+  this.anchor = [-1, -1];
 }
 
 function coordinates(x: number, y: number) {
@@ -106,7 +134,7 @@ function moveRight() {
     for (let j = 1; j < boardHeight - 1; j++) {
       if (
         (gameBoard[j][i] === 1 || gameBoard[j][i] === 4) &&
-        gameBoard[j][i + 1] === 3
+        (gameBoard[j][i + 1] === 3 || gameBoard[j][i + 1] === 2)
       ) {
         return;
       } else if (
@@ -136,7 +164,7 @@ function moveLeft() {
     for (let j = 1; j < boardHeight - 1; j++) {
       if (
         (gameBoard[j][i] === 1 || gameBoard[j][i] === 4) &&
-        gameBoard[j][i - 1] === 3
+        (gameBoard[j][i - 1] === 3 || gameBoard[j][i - 1] === 2)
       ) {
         return;
       } else if (
@@ -162,9 +190,9 @@ function moveLeft() {
 }
 //time for gravity
 function moveDown() {
+  let floorFound: boolean = false;
+  //scan 4 rows first before moving to execute translation on individual cells
   for (let i = 1; i < boardHeight - 1; i++) {
-    //scan entire row first before moving to execute translation on individual cells
-    let floorFound: boolean = false;
     for (let j = boardWidth - 2; j > 0; j--) {
       if (
         (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) &&
@@ -176,7 +204,7 @@ function moveDown() {
     if (floorFound === true) {
       clearInterval(gravity);
       //reset piece rotation state for the next piece
-      pieceRotationState = 1;
+      pieceRotationState = 4;
       //turn piece into fixed piece
       for (let i = 1; i < boardHeight - 1; i++) {
         for (let j = boardWidth - 2; j > 0; j--) {
@@ -193,7 +221,8 @@ function moveDown() {
       goGoGravity();
       return;
     }
-    //fix and turn moving-pieces to fixed-pieces
+  }
+  for (let i = 1; i < boardHeight - 1; i++) {
     for (let j = boardWidth - 2; j > 0; j--) {
       if (
         (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) &&
@@ -360,9 +389,35 @@ function rotatePieceACW(tetronomino: tetronomino) {
 function goGoGravity() {
   gravity = setInterval(moveDown, 800);
 }
+let number = 0;
 function spawnNewPiece() {
   //encapsulate this later in a function that randomly creates new pieces and spawns them.
-  let newPiece = new pieceL();
+  // let randomNum: number = Math.floor(Math.random() * 5 + 1);
+  number++;
+  if (number > 5) {
+    number = 1;
+  }
+  let newPiece: tetronomino = new pieceJ();
+  switch (number) {
+    case 1:
+      newPiece = new pieceJ();
+      break;
+    case 2:
+      newPiece = new pieceL();
+      break;
+    case 3:
+      newPiece = new pieceO();
+      break;
+    case 4:
+      newPiece = new pieceS();
+      break;
+    case 5:
+      newPiece = new pieceZ();
+      break;
+    default:
+      newPiece = new pieceJ();
+      break;
+  }
   //code to generate a new piece at spawn point
   generateNewPiece(newPiece.template, spawnX, spawnY);
   currentPiece = newPiece;
