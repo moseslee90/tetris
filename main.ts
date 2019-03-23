@@ -7,17 +7,18 @@ let boardHeight: number = 21;
 let boardWidth: number = 12;
 let gravity;
 let gameBoardHTML = document.getElementById("game-board");
+let pieceRotationState = 1;
 
 function keydownEvent(event) {
   var x = event.keyCode || event.which;
-  console.log(x+" was pressed");
+  console.log(x + " was pressed");
   if (x === 65) {
     moveLeft();
   }
   if (x === 68) {
     moveRight();
   }
-  if (x === 83){
+  if (x === 83) {
     moveDown();
   }
 }
@@ -26,11 +27,13 @@ document.onkeydown = keydownEvent;
 //L Piece
 interface pieceL {
   template: number[][];
-
 }
 
 function pieceL() {
   this.template = [[0, 1, 1], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
+  this.templateTwo = [[1, 0, 0], [1, 1, 1], [0, 0, 0], [0, 0, 0]];
+  this.templateThree = [[0, 1, 0], [0, 1, 0], [1, 1, 0], [0, 0, 0]];
+  this.templateFour = [[0, 0, 0], [1, 1, 1], [0, 0, 1], [0, 0, 0]];
 }
 //J Piece
 interface pieceJ {
@@ -40,6 +43,7 @@ interface pieceJ {
 function pieceJ() {
   this.template = [[1, 1, 0], [0, 1, 0], [0, 1, 0], [0, 0, 0]];
 }
+
 function coordinates(x: number, y: number) {
   let xCoordinate = x.toString();
   let yCoordinate = y.toString();
@@ -73,7 +77,7 @@ function setupBoard() {
       element.addEventListener("click", boxClicked);
       gameBoardHTML.appendChild(element);
       //make borders
-      if (i === boardHeight - 1){
+      if (i === boardHeight - 1) {
         array2d.push(2);
       } else if (j === 0 || j === boardWidth - 1) {
         //add object property for code computation
@@ -94,12 +98,12 @@ function generateNewPiece(piece: pieceL) {
   let pieceTemplate: number[][] = piece.template;
   for (let i = 0; i < pieceTemplate.length; i++) {
     for (let j = 0; j < pieceTemplate[i].length; j++) {
-      if (pieceTemplate[i][j] === 1) {
+      if (pieceTemplate[i][j] === 1 || pieceTemplate[i][j] === 4) {
         let yCoordinate: number = spawnY + i;
         let xCoordinate: number = spawnX + j;
         gameBoard[yCoordinate][xCoordinate] = pieceTemplate[i][j];
         let cellHTML: HTMLElement = document.getElementById(
-          xCoordinate.toString() + "-" + yCoordinate.toString()
+          coordinates(xCoordinate, yCoordinate)
         );
         cellHTML.classList.add("moving-piece");
         //   element.classList.add("moving-piece");
@@ -114,12 +118,23 @@ generateNewPiece(newPieceJ);
 function moveRight() {
   for (let i = boardWidth - 2; i > 0; i--) {
     for (let j = 1; j < boardHeight - 1; j++) {
-      if (gameBoard[j][i] === 1 && gameBoard[j][i + 1] === 3) {
+      if (
+        (gameBoard[j][i] === 1 || gameBoard[j][i] === 4) &&
+        gameBoard[j][i + 1] === 3
+      ) {
         return;
-      } else if (gameBoard[j][i] === 1 && gameBoard[j][i + 1] === 0) {
+      } else if (
+        (gameBoard[j][i] === 1 || gameBoard[j][i] === 4) &&
+        gameBoard[j][i + 1] === 0
+      ) {
         //code to manipulate array
-        gameBoard[j].splice(i, 1, 0);
-        gameBoard[j].splice(i + 1, 1, 1);
+        if (gameBoard[j][i] === 4) {
+          gameBoard[j].splice(i, 1, 0);
+          gameBoard[j].splice(i + 1, 1, 4);
+        } else {
+          gameBoard[j].splice(i, 1, 0);
+          gameBoard[j].splice(i + 1, 1, 1);
+        }
         //code to manipulate HTML
         let cell: HTMLElement = document.getElementById(coordinates(i, j));
         cell.classList.remove("moving-piece");
@@ -133,12 +148,23 @@ function moveRight() {
 function moveLeft() {
   for (let i = 1; i < boardWidth - 1; i++) {
     for (let j = 1; j < boardHeight - 1; j++) {
-      if (gameBoard[j][i] === 1 && gameBoard[j][i - 1] === 3) {
+      if (
+        (gameBoard[j][i] === 1 || gameBoard[j][i] === 4) &&
+        gameBoard[j][i - 1] === 3
+      ) {
         return;
-      } else if (gameBoard[j][i] === 1 && gameBoard[j][i - 1] === 0) {
+      } else if (
+        (gameBoard[j][i] === 1 || gameBoard[j][i] === 4) &&
+        gameBoard[j][i - 1] === 0
+      ) {
         //code to manipulate array
-        gameBoard[j].splice(i, 1, 0);
-        gameBoard[j].splice(i - 1, 1, 1);
+        if (gameBoard[j][i] === 4) {
+          gameBoard[j].splice(i, 1, 0);
+          gameBoard[j].splice(i - 1, 1, 4);
+        } else {
+          gameBoard[j].splice(i, 1, 0);
+          gameBoard[j].splice(i - 1, 1, 1);
+        }
         //code to manipulate HTML
         let cell: HTMLElement = document.getElementById(coordinates(i, j));
         cell.classList.remove("moving-piece");
@@ -154,38 +180,59 @@ function moveDown() {
     //scan entire row first before moving to execute translation on individual cells
     let floorFound: boolean = false;
     for (let j = boardWidth - 2; j > 0; j--) {
-      if (gameBoard[i][j] === 1 && gameBoard[i - 1][j] === 2) {
+      if (
+        (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) &&
+        gameBoard[i - 1][j] === 2
+      ) {
         floorFound = true;
       }
     }
-    if (floorFound === true){
+    if (floorFound === true) {
       clearInterval(gravity);
+      //reset piece rotation state for the next piece
+      pieceRotationState = 1;
     }
     //fix and turn moving-pieces to fixed-pieces
     for (let j = boardWidth - 2; j > 0; j--) {
-        if (gameBoard[i][j] === 1 && gameBoard[i - 1][j] === 2) {
-            //turn piece into fixed piece
-            for (let i = 1; i < boardHeight - 1; i++) {
-                for (let j = boardWidth - 2; j > 0; j--) {
-                    if(gameBoard[i][j] === 1){
-                        gameBoard[i].splice(j, 1, 2);
-                        let cell: HTMLElement = document.getElementById(coordinates(j, i));
-                        cell.classList.remove("moving-piece");
-                        cell.classList.add("fixed-piece");
-                    }
-                }
+      if (
+        (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) &&
+        gameBoard[i - 1][j] === 2
+      ) {
+        //turn piece into fixed piece
+        for (let i = 1; i < boardHeight - 1; i++) {
+          for (let j = boardWidth - 2; j > 0; j--) {
+            if (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) {
+              gameBoard[i].splice(j, 1, 2);
+              let cell: HTMLElement = document.getElementById(
+                coordinates(j, i)
+              );
+              cell.classList.remove("moving-piece");
+              cell.classList.add("fixed-piece");
             }
-            //code to generate new piece here
-            goGoGravity();
+          }
         }
+        //code to generate new piece here
+        goGoGravity();
+      }
 
-      if (gameBoard[i][j] === 1 && gameBoard[i - 1][j] === 3) {
+      if (
+        (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) &&
+        gameBoard[i - 1][j] === 3
+      ) {
         return;
         //add ability to detect other pieces too later
-      } else if (gameBoard[i][j] === 1 && gameBoard[i - 1][j] === 0) {
+      } else if (
+        (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) &&
+        gameBoard[i - 1][j] === 0
+      ) {
         //code to manipulate array
-        gameBoard[i].splice(j, 1, 0);
-        gameBoard[i - 1].splice(j, 1, 1);
+        if (gameBoard[i][j] === 4) {
+          gameBoard[i].splice(j, 1, 0);
+          gameBoard[i - 1].splice(j, 1, 4);
+        } else {
+          gameBoard[i].splice(j, 1, 0);
+          gameBoard[i - 1].splice(j, 1, 1);
+        }
         //code to manipulate HTML
         let cell: HTMLElement = document.getElementById(coordinates(j, i));
         cell.classList.remove("moving-piece");
@@ -193,6 +240,13 @@ function moveDown() {
         cell2.classList.add("moving-piece");
       }
     }
+  }
+}
+function rotatePiece(state: number) {
+  //clear piece currently on board
+  //get reference position of anchor
+  if (state === 1) {
+    //paste state 2 of piece and update state to 2
   }
 }
 //gravity in intervals
