@@ -189,6 +189,39 @@ function moveLeft() {
   }
 }
 //time for gravity
+function checkLineFilled() {
+  //delete all rows before pushing lines above down
+  for (let i = 1; i < boardHeight - 1; i++) {
+    let rowFilled = 0;
+    for (let j = boardWidth - 2; j > 0; j--) {
+      if (gameBoard[i][j] === 2) {
+        rowFilled++;
+      }
+    }
+    if (rowFilled === boardWidth - 2) {
+      //deleteRow
+      for (let j = boardWidth - 2; j > 0; j--) {
+        //update array
+        gameBoard[i].splice(j, 1, 0);
+        //update html
+        let cell: HTMLElement = document.getElementById(coordinates(j, i));
+        cell.classList.remove("fixed-piece");
+      }
+      for (let k = 1; k < boardHeight - 1; k++) {
+        for (let l = boardWidth - 2; l > 0; l--) {
+          if (gameBoard[k][l] === 2) {
+            //update array
+            gameBoard[k].splice(l, 1, 0);
+            gameBoard[k - 1].splice(l, 1, 2);
+            //update html
+            
+          }
+        }
+      }
+    }
+  }
+  //move 2s still remaining down
+}
 function moveDown() {
   let floorFound: boolean = false;
   //scan 4 rows first before moving to execute translation on individual cells
@@ -218,6 +251,7 @@ function moveDown() {
       }
       //code to generate new piece here
       spawnNewPiece();
+      checkLineFilled();
       goGoGravity();
       return;
     }
@@ -251,7 +285,7 @@ function moveDown() {
     }
   }
 }
-function rotatePieceCW(tetronomino: tetronomino) {
+function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
   //get reference position of anchor
   // clearInterval(gravity);
   for (let i = 1; i < boardWidth - 1; i++) {
@@ -276,74 +310,11 @@ function rotatePieceCW(tetronomino: tetronomino) {
           }
         }
         //replace ONEs around anchor
-        pieceRotationState++;
-        if (pieceRotationState > 4) {
-          pieceRotationState = 1;
-        } else if (pieceRotationState < 1) {
-          pieceRotationState = 4;
+        if (clockwise) {
+          pieceRotationState++;
+        } else {
+          pieceRotationState--;
         }
-        switch (pieceRotationState) {
-          case 1:
-            generateNewPiece(
-              currentPiece.templateTwo,
-              xCoordinate,
-              yCoordinate
-            );
-            break;
-          case 2:
-            generateNewPiece(
-              currentPiece.templateThree,
-              xCoordinate,
-              yCoordinate
-            );
-            break;
-          case 3:
-            generateNewPiece(
-              currentPiece.templateFour,
-              xCoordinate,
-              yCoordinate
-            );
-            break;
-          case 4:
-            generateNewPiece(currentPiece.template, xCoordinate, yCoordinate);
-            break;
-
-          default:
-            console.log("error on rotation");
-            break;
-        }
-        // goGoGravity();
-        return;
-      }
-    }
-  }
-}
-function rotatePieceACW(tetronomino: tetronomino) {
-  //get reference position of anchor
-  // clearInterval(gravity);
-  for (let i = 1; i < boardWidth - 1; i++) {
-    for (let j = 1; j < boardHeight - 1; j++) {
-      if (gameBoard[j][i] === 4) {
-        console.log("anchor found at " + i + "-" + j);
-        let anchorX = tetronomino.anchor[1];
-        let anchorY = tetronomino.anchor[0];
-        let xCoordinate = i + anchorX;
-        let yCoordinate = j + anchorY;
-        //clear ONEs currently on board
-
-        for (let k = 1; k < boardWidth - 1; k++) {
-          for (let l = 1; l < boardHeight - 1; l++) {
-            if (gameBoard[l][k] === 1) {
-              gameBoard[l].splice(k, 1, 0);
-              let cell: HTMLElement = document.getElementById(
-                coordinates(k, l)
-              );
-              cell.classList.remove("moving-piece");
-            }
-          }
-        }
-        //replace ONEs around anchor
-        pieceRotationState--;
         if (pieceRotationState > 4) {
           pieceRotationState = 1;
         } else if (pieceRotationState < 1) {
@@ -438,10 +409,10 @@ function keydownEvent(event) {
     moveDown();
   }
   if (x === 221) {
-    rotatePieceCW(currentPiece);
+    rotatePiece(currentPiece, true);
   }
   if (x === 219) {
-    rotatePieceACW(currentPiece);
+    rotatePiece(currentPiece, false);
   }
 }
 document.onkeydown = keydownEvent;
