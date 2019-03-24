@@ -6,8 +6,9 @@ let boardHeight: number = 21;
 let boardWidth: number = 12;
 let gravity;
 let gameBoardHTML: HTMLElement = document.getElementById("game-board");
-let pieceRotationState: number = 4;
-let currentPiece: tetronomino;
+// let pieceRotationState: number = 4;
+let currentPiece: tetronominoV2;
+let pieceRotationStateV2: number = 0;
 
 //generic Piece
 interface tetronomino {
@@ -17,45 +18,207 @@ interface tetronomino {
   templateFour: number[][];
   anchor: number[];
 }
+interface tetronominoV2 {
+  template: number[][][];
+  templateOne: number[][];
+  templateTwo: number[][];
+  templateThree: number[][];
+  templateFour: number[][];
+}
 //template 1 to 4 go in clockwise
 function pieceL() {
-  this.template = [[0, 1, 1], [0, 4, 0], [0, 1, 0], [0, 0, 0]];
-  this.templateTwo = [[1, 0, 0], [1, 4, 1], [0, 0, 0], [0, 0, 0]];
-  this.templateThree = [[0, 1, 0], [0, 4, 0], [1, 1, 0], [0, 0, 0]];
-  this.templateFour = [[0, 0, 0], [1, 4, 1], [0, 0, 1], [0, 0, 0]];
-  this.anchor = [-1, -1];
+  this.template = [
+    [0, 1, 1, 0],
+    [0, 1, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateTwo = [
+    [0, 1, 0, 0],
+    [0, 1, 1, 1],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateThree = [
+    [0, 0, 1, 0],
+    [0, 0, 1, 0],
+    [0, 1, 1, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateFour = [
+    [1, 1, 1, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.anchor = [-4, -2];
 }
-
+function pieceLV2() {
+  this.template = [
+    [[0, 4, 1, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+    [[0, 4, 0, 0], [0, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+    [[0, 0, 4, 0], [0, 0, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+    [[1, 1, 4, 0], [0, 0, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+  ];
+  this.templateOne = [
+    [0, 4, 1, 0],
+    [0, 1, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+  ];
+  this.templateTwo = [
+    [0, 4, 0, 0],
+    [0, 1, 1, 1],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+  ];
+  this.templateThree = [
+    [0, 0, 4, 0],
+    [0, 0, 1, 0],
+    [0, 1, 1, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+  ];
+  this.templateFour = [
+    [1, 1, 4, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+  ];
+}
 function pieceJ() {
-  this.template = [[1, 1, 0], [0, 4, 0], [0, 1, 0], [0, 0, 0]];
-  this.templateTwo = [[0, 0, 0], [1, 4, 1], [1, 0, 0], [0, 0, 0]];
-  this.templateThree = [[0, 1, 0], [0, 4, 0], [0, 1, 1], [0, 0, 0]];
-  this.templateFour = [[0, 0, 1], [1, 4, 1], [0, 0, 0], [0, 0, 0]];
-  this.anchor = [-1, -1];
+  this.template = [
+    [0, 1, 1, 0],
+    [0, 0, 1, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateTwo = [
+    [0, 1, 1, 1],
+    [0, 1, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateThree = [
+    [0, 1, 0, 0],
+    [0, 1, 0, 0],
+    [0, 1, 1, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateFour = [
+    [0, 0, 1, 0],
+    [1, 1, 1, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.anchor = [-4, -2];
 }
 
 function pieceO() {
-  this.template = [[1, 1, 0], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
-  this.templateTwo = [[1, 1, 0], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
-  this.templateThree = [[1, 1, 0], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
-  this.templateFour = [[1, 1, 0], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
-  this.anchor = [-1, -1];
-}
-
-function pieceS() {
-  this.template = [[1, 1, 0], [0, 4, 1], [0, 0, 0], [0, 0, 0]];
-  this.templateTwo = [[0, 1, 0], [1, 4, 0], [1, 0, 0], [0, 0, 0]];
-  this.templateThree = [[1, 1, 0], [0, 4, 1], [0, 0, 0], [0, 0, 0]];
-  this.templateFour = [[0, 1, 0], [1, 4, 0], [1, 0, 0], [0, 0, 0]];
-  this.anchor = [-1, -1];
+  this.template = [
+    [0, 1, 1, 0],
+    [0, 1, 1, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateTwo = [
+    [0, 1, 1, 0],
+    [0, 1, 1, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateThree = [
+    [0, 1, 1, 0],
+    [0, 1, 1, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateFour = [
+    [0, 1, 1, 0],
+    [0, 1, 1, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.anchor = [-4, -2];
 }
 
 function pieceZ() {
-  this.template = [[0, 1, 1], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
-  this.templateTwo = [[1, 0, 0], [1, 4, 0], [0, 1, 0], [0, 0, 0]];
-  this.templateThree = [[0, 1, 1], [1, 4, 0], [0, 0, 0], [0, 0, 0]];
-  this.templateFour = [[1, 0, 0], [1, 4, 0], [0, 1, 0], [0, 0, 0]];
-  this.anchor = [-1, -1];
+  this.template = [
+    [0, 1, 1, 0],
+    [1, 1, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateTwo = [
+    [0, 1, 0, 0],
+    [0, 1, 1, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateThree = [
+    [0, 1, 1, 0],
+    [1, 1, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateFour = [
+    [0, 1, 0, 0],
+    [0, 1, 1, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.anchor = [-4, -2];
+}
+
+function pieceS() {
+  this.template = [
+    [0, 1, 1, 0],
+    [0, 0, 1, 1],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateTwo = [
+    [0, 0, 1, 0],
+    [0, 1, 1, 0],
+    [0, 1, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateThree = [
+    [0, 1, 1, 0],
+    [0, 0, 1, 1],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.templateFour = [
+    [0, 0, 1, 0],
+    [0, 1, 1, 0],
+    [0, 1, 0, 0],
+    [0, 0, 0, 0],
+    [0, 4, 0, 0]
+  ];
+  this.anchor = [-4, -2];
 }
 
 function coordinates(x: number, y: number) {
@@ -107,13 +270,23 @@ function setupBoard() {
     gameBoard.push(array2d);
   }
 }
+
 setupBoard();
+
 function generateNewPiece(
   template: number[][],
   positionX: number,
   positionY: number
 ) {
   //function generates a new piece based on the template given, at the specified location entered, with the position being the left corner of the template
+
+  //add a loop check of target cells to be filled with new template
+  //if cells on the left currently contain a wall (3) or other piece (2), but the ones on the right do not, move translation to the right posX+1
+  //only do these checks if the transformation contains a piece in that row or column
+  //vice versa for the cells containing occupants on the right side but not on the left posX-1
+  //if both the left and right contain neighbors, do nothing
+  //keep pieces from phasing into the ground by not allowing transformations which occupy already occupied bottom cells.
+
   for (let i = 0; i < template.length; i++) {
     for (let j = 0; j < template[i].length; j++) {
       if (template[i][j] === 1 || template[i][j] === 4) {
@@ -214,7 +387,6 @@ function checkLineFilled() {
             gameBoard[k].splice(l, 1, 0);
             gameBoard[k - 1].splice(l, 1, 2);
             //update html
-            
           }
         }
       }
@@ -237,7 +409,7 @@ function moveDown() {
     if (floorFound === true) {
       clearInterval(gravity);
       //reset piece rotation state for the next piece
-      pieceRotationState = 4;
+      pieceRotationStateV2 = 0;
       //turn piece into fixed piece
       for (let i = 1; i < boardHeight - 1; i++) {
         for (let j = boardWidth - 2; j > 0; j--) {
@@ -285,77 +457,121 @@ function moveDown() {
     }
   }
 }
-function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
+
+function rotatePieceV2(tetronomino: tetronominoV2, clockwise: boolean) {
   //get reference position of anchor
-  // clearInterval(gravity);
+  let currentTemplate: number[][] = tetronomino.template[pieceRotationStateV2];
+  let anchorTemplatePosX: number;
+  let anchorTemplatePosY: number;
+  for (let i = 0; i < currentTemplate.length; i++) {
+    for (let j = 0; j < currentTemplate[i].length; j++) {
+      if (currentTemplate[i][j] === 4) {
+        anchorTemplatePosY = i;
+        anchorTemplatePosX = j;
+      }
+    }
+  }
+  //prepare next template
+  if (clockwise === true) {
+    //next template is the clockwise transformation of the current template which is the the 2d array in the 3d template array
+    pieceRotationStateV2++;
+  } else {
+    //else next template is the ACW transformation
+    pieceRotationStateV2--;
+  }
+  if (pieceRotationStateV2 > 3) {
+    pieceRotationStateV2 = 0;
+  } else if (pieceRotationStateV2 < 0) {
+    pieceRotationStateV2 = 3;
+  }
+  let nextTemplate: number[][] = tetronomino.template[pieceRotationStateV2];
+  let anchorNextTemplatePosX: number;
+  let anchorNextTemplatePosY: number;
+  for (let i = 0; i < nextTemplate.length; i++) {
+    for (let j = 0; j < nextTemplate[i].length; j++) {
+      if (nextTemplate[i][j] === 4) {
+        anchorNextTemplatePosY = i;
+        anchorNextTemplatePosX = j;
+      }
+    }
+  }
+  //need to ensure rotatePiece function checks board for collisions and adjusts replacement of piece template accordingly to avoid 'phasing' of blocks into walls and floor and other pieces
   for (let i = 1; i < boardWidth - 1; i++) {
     for (let j = 1; j < boardHeight - 1; j++) {
+      //finds anchor which is identified as 4
       if (gameBoard[j][i] === 4) {
         console.log("anchor found at " + i + "-" + j);
-        let anchorX = tetronomino.anchor[1];
-        let anchorY = tetronomino.anchor[0];
+        let anchorX = -anchorTemplatePosX;
+        let anchorY = -anchorTemplatePosY;
         let xCoordinate = i + anchorX;
         let yCoordinate = j + anchorY;
-        //clear ONEs currently on board
+        //clear ONEs  and FOURs currently on board only after check has been done that replacement template does not have collisions
+        let collision: boolean = true;
+        let leftCollision: number = 0;
+        let rightCollision: number = 0;
+        let collisionCount: number = 0;
+        while (collision === true && collisionCount < 2) {
+          for (let k = 0; k < nextTemplate.length; k++) {
+            for (let l = 0; l < nextTemplate[k].length; l++) {
+              if (nextTemplate[k][l] === 1 || nextTemplate[k][l] === 4) {
+                let cellPosY: number = yCoordinate + k;
+                let cellPosX: number =
+                  xCoordinate + l + leftCollision - rightCollision;
+                //check left side of board
+                if (
+                  gameBoard[cellPosY][cellPosX] === 2 ||
+                  gameBoard[cellPosY][cellPosX] === 3
+                ) {
+                  console.log("collision encountered in rotation");
+                  collision = true;
 
-        for (let k = 1; k < boardWidth - 1; k++) {
-          for (let l = 1; l < boardHeight - 1; l++) {
-            if (gameBoard[l][k] === 1) {
-              gameBoard[l].splice(k, 1, 0);
-              let cell: HTMLElement = document.getElementById(
-                coordinates(k, l)
-              );
-              cell.classList.remove("moving-piece");
+                  //find location of collision
+                  if (l === 0) {
+                    collisionCount++;
+                    leftCollision = leftCollision + 1;
+                  } else if (l === 1) {
+                    collisionCount++;
+                    leftCollision = leftCollision + 2;
+                  } else if (l === 2) {
+                    collisionCount++;
+                    rightCollision = rightCollision + 2;
+                  } else if (l === 3) {
+                    collisionCount++;
+                    rightCollision = rightCollision + 1;
+                  }
+                } else {
+                  //declare collision as false if current value of leftCollision or rightCollision presents a scenario where a collision is avoided
+                  collision = false;
+                }
+              }
             }
           }
         }
-        //replace ONEs around anchor
-        if (clockwise) {
-          pieceRotationState++;
+        //clear piece from table if collisions is false ie no collisions or collision resolved through displacement
+        if (collision === true) {
+          //do nothing
         } else {
-          pieceRotationState--;
+          for (let k = 1; k < boardWidth - 1; k++) {
+            for (let l = 1; l < boardHeight - 1; l++) {
+              if (gameBoard[l][k] === 1 || gameBoard[l][k] === 4) {
+                gameBoard[l].splice(k, 1, 0);
+                let cell: HTMLElement = document.getElementById(
+                  coordinates(k, l)
+                );
+                cell.classList.remove("moving-piece");
+              }
+            }
+          }
+          //replace ONEs around anchor
+          generateNewPiece(nextTemplate, xCoordinate + leftCollision - rightCollision, yCoordinate);
+          // goGoGravity();
+          return;
         }
-        if (pieceRotationState > 4) {
-          pieceRotationState = 1;
-        } else if (pieceRotationState < 1) {
-          pieceRotationState = 4;
-        }
-        switch (pieceRotationState) {
-          case 1:
-            generateNewPiece(
-              currentPiece.templateTwo,
-              xCoordinate,
-              yCoordinate
-            );
-            break;
-          case 2:
-            generateNewPiece(
-              currentPiece.templateThree,
-              xCoordinate,
-              yCoordinate
-            );
-            break;
-          case 3:
-            generateNewPiece(
-              currentPiece.templateFour,
-              xCoordinate,
-              yCoordinate
-            );
-            break;
-          case 4:
-            generateNewPiece(currentPiece.template, xCoordinate, yCoordinate);
-            break;
-
-          default:
-            console.log("error on rotation");
-            break;
-        }
-        // goGoGravity();
-        return;
       }
     }
   }
 }
+
 //gravity in intervals
 function goGoGravity() {
   gravity = setInterval(moveDown, 800);
@@ -368,33 +584,33 @@ function spawnNewPiece() {
   if (number > 5) {
     number = 1;
   }
-  let newPiece: tetronomino = new pieceJ();
-  switch (number) {
-    case 1:
-      newPiece = new pieceJ();
-      break;
-    case 2:
-      newPiece = new pieceL();
-      break;
-    case 3:
-      newPiece = new pieceO();
-      break;
-    case 4:
-      newPiece = new pieceS();
-      break;
-    case 5:
-      newPiece = new pieceZ();
-      break;
-    default:
-      newPiece = new pieceJ();
-      break;
-  }
+  let newPiece: tetronominoV2 = new pieceLV2();
+  // switch (number) {
+  //   case 1:
+  //     newPiece = new pieceJ();
+  //     break;
+  //   case 2:
+  //     newPiece = new pieceL();
+  //     break;
+  //   case 3:
+  //     newPiece = new pieceO();
+  //     break;
+  //   case 4:
+  //     newPiece = new pieceS();
+  //     break;
+  //   case 5:
+  //     newPiece = new pieceZ();
+  //     break;
+  //   default:
+  //     newPiece = new pieceJ();
+  //     break;
+  // }
   //code to generate a new piece at spawn point
-  generateNewPiece(newPiece.template, spawnX, spawnY);
+  generateNewPiece(newPiece.template[0], spawnX, spawnY);
   currentPiece = newPiece;
 }
-
 spawnNewPiece();
+goGoGravity();
 
 function keydownEvent(event) {
   var x = event.keyCode || event.which;
@@ -409,10 +625,10 @@ function keydownEvent(event) {
     moveDown();
   }
   if (x === 221) {
-    rotatePiece(currentPiece, true);
+    rotatePieceV2(currentPiece, true);
   }
   if (x === 219) {
-    rotatePiece(currentPiece, false);
+    rotatePieceV2(currentPiece, false);
   }
 }
 document.onkeydown = keydownEvent;
