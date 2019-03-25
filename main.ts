@@ -1,9 +1,9 @@
 let gameBoard: number[][];
-let spawnX: number = 4;
-let spawnY: number = 16;
 let gameBoardDivs: NodeList = document.querySelectorAll("#game-board div");
-let boardHeight: number = 21;
+let boardHeight: number = 25;
 let boardWidth: number = 12;
+let spawnX: number = 4;
+let spawnY: number = boardHeight-4;
 let gravity;
 let gameBoardHTML: HTMLElement = document.getElementById("game-board");
 // let pieceRotationState: number = 4;
@@ -157,6 +157,16 @@ function generateNewPiece(
     }
   }
 }
+
+function haveYouDied() {
+  for (let i = 1; i < boardWidth -2 ; i++) {
+    if (gameBoard[boardHeight-1][i] === 2) {
+     //you have died
+     alert("Your Partner has died.") ;
+    }
+  }
+}
+
 function moveRight() {
   for (let i = boardWidth - 2; i > 0; i--) {
     for (let j = 1; j < boardHeight - 1; j++) {
@@ -268,6 +278,7 @@ function checkLineFilled() {
           }
         }
       }
+      i--;
     }
     //code to delete row ends here, scanning of next line continues
   }
@@ -275,7 +286,7 @@ function checkLineFilled() {
 function moveDown() {
   let floorFound: boolean = false;
   //scan 4 rows first before moving to execute translation on individual cells
-  for (let i = 1; i < boardHeight - 1; i++) {
+  for (let i = 1; i < boardHeight; i++) {
     for (let j = boardWidth - 2; j > 0; j--) {
       if (
         (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) &&
@@ -302,11 +313,13 @@ function moveDown() {
       //code to generate new piece here
       spawnNewPiece();
       checkLineFilled();
+      //kill game here if resultant board has a piece at the ceiling
+      // haveYouDied();
       goGoGravity();
       return;
     }
   }
-  for (let i = 1; i < boardHeight - 1; i++) {
+  for (let i = 1; i < boardHeight; i++) {
     for (let j = boardWidth - 2; j > 0; j--) {
       if (
         (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) &&
@@ -336,7 +349,7 @@ function moveDown() {
   }
 }
 
-function rotatePieceV2(tetronomino: tetronomino, clockwise: boolean) {
+function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
   //get reference position of anchor
   let currentTemplate: number[][] = tetronomino.template[pieceRotationState];
   let anchorTemplatePosX: number;
@@ -583,10 +596,13 @@ function keydownEvent(event) {
     moveDown();
   }
   if (x === 221) {
-    rotatePieceV2(currentPiece, true);
+    rotatePiece(currentPiece, true);
   }
   if (x === 219) {
-    rotatePieceV2(currentPiece, false);
+    rotatePiece(currentPiece, false);
   }
 }
 document.onkeydown = keydownEvent;
+
+//need to create death function
+//add scoring  variable to check line cleared
