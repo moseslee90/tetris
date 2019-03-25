@@ -91,7 +91,7 @@ function boxClicked() {
 }
 
 function setupBoard() {
-  let gridSquareDimension = 54;
+  let gridSquareDimension = 30;
   gameBoardHTML.style.width = gridSquareDimension * boardWidth + "px";
   gameBoardHTML.style.height = gridSquareDimension * boardHeight + "px";
   gameBoard = [];
@@ -125,6 +125,7 @@ function setupBoard() {
     }
     gameBoard.push(array2d);
   }
+
 }
 
 setupBoard();
@@ -246,6 +247,7 @@ function checkLineFilled() {
     //if a row is filled
     if (rowFilled === boardWidth - 2) {
       //deleteRow
+      linesClearedScore++;
       for (let j = boardWidth - 2; j > 0; j--) {
         //update array: delete that row in the array
         gameBoard[i].splice(j, 1, 0);

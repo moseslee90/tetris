@@ -1,7 +1,7 @@
 .box {
-    height: 48px;
+    height: 24px;
     display: inline-block;
-    width: 48px;
+    width: 24px;
     border: 1px solid black;
     margin: 0px 2px;
 }
@@ -13,4 +13,7 @@
 }
 .fixed-piece {
     background-color: blue;
+}
+#game-board {
+    margin: 0px auto;
 }
