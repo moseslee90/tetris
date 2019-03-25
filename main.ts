@@ -608,8 +608,11 @@ function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
 //gravity in intervals
 function goGoGravity() {
   
-  let speedFactor = linesClearedScore / 10;
+  let speedFactor = Math.floor(linesClearedScore / 10);
   speedOfGravity = 800 - speedFactor * 100;
+  if (speedOfGravity < 200) {
+    speedOfGravity = 150;
+  }
   gravity = setInterval(moveDown, speedOfGravity);
 }
 let number = 0;
