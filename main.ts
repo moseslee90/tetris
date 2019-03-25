@@ -10,6 +10,10 @@ let gameBoardHTML: HTMLElement = document.getElementById("game-board");
 let currentPiece: tetronomino;
 let pieceRotationState: number = 0;
 let linesClearedScore: number = 0;
+let speedOfGravity: number = 800;
+
+let scoreHTML: HTMLElement = document.querySelector(".score-p");
+scoreHTML.innerText = linesClearedScore.toString();
 
 interface tetronomino {
   template: number[][][];
@@ -125,7 +129,6 @@ function setupBoard() {
     }
     gameBoard.push(array2d);
   }
-
 }
 
 setupBoard();
@@ -248,6 +251,7 @@ function checkLineFilled() {
     if (rowFilled === boardWidth - 2) {
       //deleteRow
       linesClearedScore++;
+      scoreHTML.innerText = linesClearedScore.toString();
       for (let j = boardWidth - 2; j > 0; j--) {
         //update array: delete that row in the array
         gameBoard[i].splice(j, 1, 0);
@@ -455,7 +459,7 @@ function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
 
   //loop through entire board to find anchor of current piece
   for (let i = 1; i < boardWidth - 1; i++) {
-    for (let j = 1; j < boardHeight - 1; j++) {
+    for (let j = 1; j < boardHeight; j++) {
       //finds anchor which is identified as 4
       if (gameBoard[j][i] === 4) {
         console.log("anchor found at " + i + "-" + j);
@@ -578,7 +582,7 @@ function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
         //add in another loop to check for floor collisions
         //clear piece from table if collisions is false ie no collisions or collision resolved through displacement
         for (let k = 1; k < boardWidth - 1; k++) {
-          for (let l = 1; l < boardHeight - 1; l++) {
+          for (let l = 1; l < boardHeight; l++) {
             if (gameBoard[l][k] === 1 || gameBoard[l][k] === 4) {
               gameBoard[l].splice(k, 1, 0);
               let cell: HTMLElement = document.getElementById(
@@ -603,7 +607,10 @@ function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
 
 //gravity in intervals
 function goGoGravity() {
-  gravity = setInterval(moveDown, 800);
+  
+  let speedFactor = linesClearedScore / 10;
+  speedOfGravity = 800 - speedFactor * 100;
+  gravity = setInterval(moveDown, speedOfGravity);
 }
 let number = 0;
 function spawnNewPiece() {
