@@ -170,7 +170,7 @@ function haveYouDied() {
 
 function moveRight() {
   for (let i = boardWidth - 2; i > 0; i--) {
-    for (let j = 1; j < boardHeight - 1; j++) {
+    for (let j = 1; j < boardHeight; j++) {
       if (
         (gameBoard[j][i] === 1 || gameBoard[j][i] === 4) &&
         (gameBoard[j][i + 1] === 3 || gameBoard[j][i + 1] === 2)
@@ -200,7 +200,7 @@ function moveRight() {
 
 function moveLeft() {
   for (let i = 1; i < boardWidth - 1; i++) {
-    for (let j = 1; j < boardHeight - 1; j++) {
+    for (let j = 1; j < boardHeight; j++) {
       if (
         (gameBoard[j][i] === 1 || gameBoard[j][i] === 4) &&
         (gameBoard[j][i - 1] === 3 || gameBoard[j][i - 1] === 2)
@@ -377,15 +377,18 @@ function allTheWayDown() {
       }
     }
   }
+  clearInterval(gravity);
+  //reset piece rotation state for the next piece
+  pieceRotationState = 0;
   for (let i = 1; i < boardHeight; i++) {
     for (let j = boardWidth - 2; j > 0; j--) {
       if (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) {
         if (gameBoard[i][j] === 4) {
           gameBoard[i].splice(j, 1, 0);
-          gameBoard[i - minRowsToFloor + 1].splice(j, 1, 4);
+          gameBoard[i - minRowsToFloor + 1].splice(j, 1, 2);
         } else {
           gameBoard[i].splice(j, 1, 0);
-          gameBoard[i - minRowsToFloor + 1].splice(j, 1, 1);
+          gameBoard[i - minRowsToFloor + 1].splice(j, 1, 2);
         }
         //code to manipulate HTML
         let cell: HTMLElement = document.getElementById(coordinates(j, i));
@@ -393,33 +396,17 @@ function allTheWayDown() {
         let cell2: HTMLElement = document.getElementById(
           coordinates(j, i - minRowsToFloor + 1)
         );
-        cell2.classList.add("moving-piece");
+        //turn piece into fixed piece
+        cell2.classList.add("fixed-piece");
       }
     }
   }
-  if (floorFound === true) {
-    clearInterval(gravity);
-    //reset piece rotation state for the next piece
-    pieceRotationState = 0;
-    //turn piece into fixed piece
-    for (let i = 1; i < boardHeight - 1; i++) {
-      for (let j = boardWidth - 2; j > 0; j--) {
-        if (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) {
-          gameBoard[i].splice(j, 1, 2);
-          let cell: HTMLElement = document.getElementById(coordinates(j, i));
-          cell.classList.remove("moving-piece");
-          cell.classList.add("fixed-piece");
-        }
-      }
-    }
-    //code to generate new piece here
-    spawnNewPiece();
-    checkLineFilled();
-    //kill game here if resultant board has a piece at the ceiling
-    haveYouDied();
-    goGoGravity();
-    return;
-  }
+  //code to generate new piece here
+  spawnNewPiece();
+  checkLineFilled();
+  //kill game here if resultant board has a piece at the ceiling
+  haveYouDied();
+  goGoGravity();
 }
 
 function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
@@ -673,6 +660,9 @@ function keydownEvent(event) {
   }
   if (x === 219) {
     rotatePiece(currentPiece, false);
+  }
+  if (x === 80) {
+    allTheWayDown();
   }
 }
 document.onkeydown = keydownEvent;
