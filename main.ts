@@ -463,6 +463,7 @@ function rotatePieceV2(tetronomino: tetronominoV2, clockwise: boolean) {
   let currentTemplate: number[][] = tetronomino.template[pieceRotationStateV2];
   let anchorTemplatePosX: number;
   let anchorTemplatePosY: number;
+  //loop through template to find reference of 4 relative within the template
   for (let i = 0; i < currentTemplate.length; i++) {
     for (let j = 0; j < currentTemplate[i].length; j++) {
       if (currentTemplate[i][j] === 4) {
@@ -471,7 +472,7 @@ function rotatePieceV2(tetronomino: tetronominoV2, clockwise: boolean) {
       }
     }
   }
-  //prepare next template
+  //establish rotation direction
   if (clockwise === true) {
     //next template is the clockwise transformation of the current template which is the the 2d array in the 3d template array
     pieceRotationStateV2++;
@@ -484,7 +485,9 @@ function rotatePieceV2(tetronomino: tetronominoV2, clockwise: boolean) {
   } else if (pieceRotationStateV2 < 0) {
     pieceRotationStateV2 = 3;
   }
+  //prepare next template
   let nextTemplate: number[][] = tetronomino.template[pieceRotationStateV2];
+  //may not need to get reference for nextTemplate's anchor
   let anchorNextTemplatePosX: number;
   let anchorNextTemplatePosY: number;
   for (let i = 0; i < nextTemplate.length; i++) {
@@ -496,6 +499,8 @@ function rotatePieceV2(tetronomino: tetronominoV2, clockwise: boolean) {
     }
   }
   //need to ensure rotatePiece function checks board for collisions and adjusts replacement of piece template accordingly to avoid 'phasing' of blocks into walls and floor and other pieces
+
+  //loop through entire board to find anchor of current piece
   for (let i = 1; i < boardWidth - 1; i++) {
     for (let j = 1; j < boardHeight - 1; j++) {
       //finds anchor which is identified as 4
@@ -503,70 +508,141 @@ function rotatePieceV2(tetronomino: tetronominoV2, clockwise: boolean) {
         console.log("anchor found at " + i + "-" + j);
         let anchorX = -anchorTemplatePosX;
         let anchorY = -anchorTemplatePosY;
+        //xCoordinate and yCoordinate represent the location of the corner
+        //of the template inside the gameBoard
         let xCoordinate = i + anchorX;
         let yCoordinate = j + anchorY;
-        //clear ONEs  and FOURs currently on board only after check has been done that replacement template does not have collisions
+        //clear ONEs  and FOURs currently on board only after check
+        //has been done that replacement template does not have collisions
+
+        //first initialise collision as true
+        //change value later on to false if checks yield no collisions
         let collision: boolean = true;
         let leftCollision: number = 0;
         let rightCollision: number = 0;
         let collisionCount: number = 0;
-        while (collision === true && collisionCount < 2) {
+        //we need to go to the top of the loop again as soon as left collision or
+        //right collision have been updated after finding a collision to ensure
+        //we don't get multiple updates of left or right collision.
+        collisionWhile: while (collision === true) {
+          //loop through template coordinates
           for (let k = 0; k < nextTemplate.length; k++) {
             for (let l = 0; l < nextTemplate[k].length; l++) {
+              //on the nextTemplate coordinates which have a value of 1 or 4
               if (nextTemplate[k][l] === 1 || nextTemplate[k][l] === 4) {
+                //using the location of the corner on the gameBoard, create a
+                //reference of nextTemplate's individual coordinates with
+                //cellPosY and cellPosX
                 let cellPosY: number = yCoordinate + k;
                 let cellPosX: number =
                   xCoordinate + l + leftCollision - rightCollision;
-                //check left side of board
                 if (
                   gameBoard[cellPosY][cellPosX] === 2 ||
                   gameBoard[cellPosY][cellPosX] === 3
                 ) {
+                  //if a value of 2 or 3 is found already present on the gameBoard
+                  //at the location that we would like to place nextTemplate's
+                  //1 or 4; collision found
                   console.log("collision encountered in rotation");
                   collision = true;
 
-                  //find location of collision
+                  //find column of collision
                   if (l === 0) {
+                    //leftmost column
                     collisionCount++;
+                    //if collision is found on the left, add 1 to leftCollision
                     leftCollision = leftCollision + 1;
                   } else if (l === 1) {
+                    //center left column
                     collisionCount++;
-                    leftCollision = leftCollision + 2;
+                    //if collision is found on the center left, add 1 to leftCollision
+                    leftCollision = leftCollision + 1;
                   } else if (l === 2) {
+                    //center right column
                     collisionCount++;
-                    rightCollision = rightCollision + 2;
+                    //if collision is found on the center right, add 1 to rightCollision
+                    rightCollision = rightCollision + 1;
                   } else if (l === 3) {
+                    //right most column
                     collisionCount++;
+                    //if collision is found on the right, add 1 to rightCollision
                     rightCollision = rightCollision + 1;
                   }
+                  if (leftCollision > 0 && rightCollision > 0) {
+                    //get out of loop since left collision and right collision have been met which means piece is phasing through pieces/walls
+                    //restore previous rotation state
+                    if (clockwise === true) {
+                      //next template is the clockwise transformation of the current template which is the the 2d array in the 3d template array
+                      pieceRotationStateV2--;
+                    } else {
+                      //else next template is the ACW transformation
+                      pieceRotationStateV2++;
+                    }
+                    if (pieceRotationStateV2 > 3) {
+                      pieceRotationStateV2 = 0;
+                    } else if (pieceRotationStateV2 < 0) {
+                      pieceRotationStateV2 = 3;
+                    }
+                    //probably don't need to do this, but just to be sure that collision is still true
+                    collision = true;
+                    //we can exit function since rotate shld not be executed with collisions on the left and right
+                    return;
+                  }
+                  //continue to the top of the while loop and go through the
+                  //for loops again to find out if the new values of right/left collision
+                  //have modified the position of nextTemplate to be in a non-collision state
+                  continue collisionWhile;
                 } else {
                   //declare collision as false if current value of leftCollision or rightCollision presents a scenario where a collision is avoided
+                  //only way to exit the loop and
                   collision = false;
+                }
+                //if left or right collision displaces the piece by 2, we can still allow
+                //the loop to run one more time to check if the collision still exists
+                //but if the colli
+                if (leftCollision > 2 || rightCollision > 2) {
+                  //if collisions result in a displacement of more than 2, exit immediately
+                  //and stop function
+                  if (clockwise === true) {
+                    //ensure that we put pieceRotationState back into
+                    //the value it was before the function was called
+                    pieceRotationStateV2--;
+                  } else {
+                    //else next template is the ACW transformation
+                    pieceRotationStateV2++;
+                  }
+                  if (pieceRotationStateV2 > 3) {
+                    pieceRotationStateV2 = 0;
+                  } else if (pieceRotationStateV2 < 0) {
+                    pieceRotationStateV2 = 3;
+                  }
+                  return;
                 }
               }
             }
           }
         }
+        //add in another loop to check for floor collisions
         //clear piece from table if collisions is false ie no collisions or collision resolved through displacement
-        if (collision === true) {
-          //do nothing
-        } else {
-          for (let k = 1; k < boardWidth - 1; k++) {
-            for (let l = 1; l < boardHeight - 1; l++) {
-              if (gameBoard[l][k] === 1 || gameBoard[l][k] === 4) {
-                gameBoard[l].splice(k, 1, 0);
-                let cell: HTMLElement = document.getElementById(
-                  coordinates(k, l)
-                );
-                cell.classList.remove("moving-piece");
-              }
+        for (let k = 1; k < boardWidth - 1; k++) {
+          for (let l = 1; l < boardHeight - 1; l++) {
+            if (gameBoard[l][k] === 1 || gameBoard[l][k] === 4) {
+              gameBoard[l].splice(k, 1, 0);
+              let cell: HTMLElement = document.getElementById(
+                coordinates(k, l)
+              );
+              cell.classList.remove("moving-piece");
             }
           }
-          //replace ONEs around anchor
-          generateNewPiece(nextTemplate, xCoordinate + leftCollision - rightCollision, yCoordinate);
-          // goGoGravity();
-          return;
         }
+        //replace ONEs around anchor
+        generateNewPiece(
+          nextTemplate,
+          xCoordinate + leftCollision - rightCollision,
+          yCoordinate
+        );
+        // goGoGravity();
+        return;
       }
     }
   }
