@@ -3,12 +3,13 @@ let gameBoardDivs: NodeList = document.querySelectorAll("#game-board div");
 let boardHeight: number = 25;
 let boardWidth: number = 12;
 let spawnX: number = 4;
-let spawnY: number = boardHeight-4;
+let spawnY: number = boardHeight - 4;
 let gravity;
 let gameBoardHTML: HTMLElement = document.getElementById("game-board");
 // let pieceRotationState: number = 4;
 let currentPiece: tetronomino;
 let pieceRotationState: number = 0;
+let linesClearedScore: number = 0;
 
 interface tetronomino {
   template: number[][][];
@@ -159,10 +160,10 @@ function generateNewPiece(
 }
 
 function haveYouDied() {
-  for (let i = 1; i < boardWidth -2 ; i++) {
-    if (gameBoard[boardHeight-1][i] === 2) {
-     //you have died
-     alert("Your Partner has died.") ;
+  for (let i = 1; i < boardWidth - 2; i++) {
+    if (gameBoard[boardHeight - 4][i] === 2) {
+      //you have died
+      alert("You Died.");
     }
   }
 }
@@ -278,6 +279,8 @@ function checkLineFilled() {
           }
         }
       }
+      //modifier to i to ensure that after a row is deleted, code checks that line again
+      //after the cells have dropped down to see if that new row has a filled row.
       i--;
     }
     //code to delete row ends here, scanning of next line continues
@@ -314,7 +317,7 @@ function moveDown() {
       spawnNewPiece();
       checkLineFilled();
       //kill game here if resultant board has a piece at the ceiling
-      // haveYouDied();
+      haveYouDied();
       goGoGravity();
       return;
     }
@@ -346,6 +349,76 @@ function moveDown() {
         cell2.classList.add("moving-piece");
       }
     }
+  }
+}
+
+//in order to create an allTheWayDown function,
+//code scans template and board, to find floor===true situation
+function allTheWayDown() {
+  let floorFound: boolean = false;
+  let minRowsToFloor: number = boardHeight;
+  for (let i = 1; i < boardHeight; i++) {
+    //this for-loop below scans the current row at the bottom for a floor, use it to
+    //instead scan how many rows till the floor
+    for (let j = boardWidth - 2; j > 0; j--) {
+      //1 or 4 found at this row
+      //need to check which cell containing a 1 or a 4 has the lowest number of
+      //steps till it reaches the floor
+      if (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) {
+        //pieces found is true
+        //now execute code to find shortest number of downward translations till
+        //we hit a floor on one of the pieces
+        for (let k = 0; i - k >= 0; k++) {
+          if (gameBoard[i - k][j] === 2) {
+            minRowsToFloor = Math.min(k, minRowsToFloor);
+            floorFound = true;
+          }
+        }
+      }
+    }
+  }
+  for (let i = 1; i < boardHeight; i++) {
+    for (let j = boardWidth - 2; j > 0; j--) {
+      if (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) {
+        if (gameBoard[i][j] === 4) {
+          gameBoard[i].splice(j, 1, 0);
+          gameBoard[i - minRowsToFloor + 1].splice(j, 1, 4);
+        } else {
+          gameBoard[i].splice(j, 1, 0);
+          gameBoard[i - minRowsToFloor + 1].splice(j, 1, 1);
+        }
+        //code to manipulate HTML
+        let cell: HTMLElement = document.getElementById(coordinates(j, i));
+        cell.classList.remove("moving-piece");
+        let cell2: HTMLElement = document.getElementById(
+          coordinates(j, i - minRowsToFloor + 1)
+        );
+        cell2.classList.add("moving-piece");
+      }
+    }
+  }
+  if (floorFound === true) {
+    clearInterval(gravity);
+    //reset piece rotation state for the next piece
+    pieceRotationState = 0;
+    //turn piece into fixed piece
+    for (let i = 1; i < boardHeight - 1; i++) {
+      for (let j = boardWidth - 2; j > 0; j--) {
+        if (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) {
+          gameBoard[i].splice(j, 1, 2);
+          let cell: HTMLElement = document.getElementById(coordinates(j, i));
+          cell.classList.remove("moving-piece");
+          cell.classList.add("fixed-piece");
+        }
+      }
+    }
+    //code to generate new piece here
+    spawnNewPiece();
+    checkLineFilled();
+    //kill game here if resultant board has a piece at the ceiling
+    haveYouDied();
+    goGoGravity();
+    return;
   }
 }
 
