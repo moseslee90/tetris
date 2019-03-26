@@ -1,16 +1,22 @@
 let gameBoard: number[][];
+let holdingBoardArray: number[][];
 let gameBoardDivs: NodeList = document.querySelectorAll("#game-board div");
 let boardHeight: number = 25;
 let boardWidth: number = 12;
+let holdingHeight: number = 4;
+let holdingWidth:number = 4;
 let spawnX: number = 4;
 let spawnY: number = boardHeight - 4;
 let gravity;
 let gameBoardHTML: HTMLElement = document.getElementById("game-board");
+let holdingArea: HTMLElement = document.getElementById("holding-area");
 // let pieceRotationState: number = 4;
 let currentPiece: tetronomino;
 let pieceRotationState: number = 0;
 let linesClearedScore: number = 0;
 let speedOfGravity: number = 800;
+let holdingPiece: tetronomino;
+let newGame: boolean = true;
 
 let scoreHTML: HTMLElement = document.querySelector(".score-p");
 scoreHTML.innerText = linesClearedScore.toString();
@@ -82,11 +88,19 @@ function pieceI() {
 }
 
 function coordinates(x: number, y: number) {
-  let xCoordinate = x.toString();
-  let yCoordinate = y.toString();
-  let coordinates = xCoordinate + "-" + yCoordinate;
+  let xCoordinate: string = x.toString();
+  let yCoordinate: string = y.toString();
+  let coordinates: string = xCoordinate + "-" + yCoordinate;
   return coordinates;
 }
+
+function coordinatesHolding(x: number, y: number) {
+  let xCoordinate: string = x.toString();
+  let yCoordinate: string = y.toString();
+  let coordinates: string = xCoordinate + "h" + yCoordinate;
+  return coordinates;
+}
+
 function boxClicked() {
   let element: HTMLDivElement = this;
   let x: number = parseInt(element.getAttribute("data-x"));
@@ -103,8 +117,8 @@ function setupBoard() {
   for (let i = boardHeight - 1; i > -1; i--) {
     let array2d: number[] = [];
     for (let j = 0; j < boardWidth; j++) {
-      var element = document.createElement("div");
-      var paragraph = document.createElement("p");
+      let element = document.createElement("div");
+      let paragraph = document.createElement("p");
       element.setAttribute("id", j.toString() + "-" + i.toString());
       element.setAttribute("data-x", j.toString());
       element.setAttribute("data-y", i.toString());
@@ -129,6 +143,29 @@ function setupBoard() {
     }
     gameBoard.push(array2d);
   }
+
+  // holding area code to be finalised
+
+  holdingArea.style.width = gridSquareDimension * holdingWidth + "px";
+  holdingArea.style.height = gridSquareDimension * holdingHeight + "px";
+  holdingBoardArray = [];
+  for (let i = holdingHeight - 1; i > -1; i--) {
+    let array2d: number[] = [];
+    for (let j = 0; j < holdingWidth; j++) {
+      let element = document.createElement("div");
+      element.setAttribute("id", j.toString() + "h" + i.toString());
+      element.setAttribute("data-x", j.toString());
+      element.setAttribute("data-y", i.toString());
+      element.setAttribute("data-state", "0");
+      element.setAttribute("class", "box");
+      element.addEventListener("click", boxClicked);
+      holdingArea.appendChild(element);
+
+      array2d.push(0);
+
+    }
+    holdingBoardArray.push(array2d);
+  }
 }
 
 setupBoard();
@@ -138,10 +175,12 @@ function generateNewPiece(
   positionX: number,
   positionY: number
 ) {
-  //function generates a new piece based on the template given, at the specified location entered, with the position being the left corner of the template
+  //function generates a new piece based on the template given,
+  //at the specified location entered, with the position being the left corner of the template
 
   //add a loop check of target cells to be filled with new template
-  //if cells on the left currently contain a wall (3) or other piece (2), but the ones on the right do not, move translation to the right posX+1
+  //if cells on the left currently contain a wall (3) or other piece (2),
+  //but the ones on the right do not, move translation to the right posX+1
   //only do these checks if the transformation contains a piece in that row or column
   //vice versa for the cells containing occupants on the right side but not on the left posX-1
   //if both the left and right contain neighbors, do nothing
@@ -155,6 +194,42 @@ function generateNewPiece(
         gameBoard[yCoordinate][xCoordinate] = template[i][j];
         let cellHTML: HTMLElement = document.getElementById(
           coordinates(xCoordinate, yCoordinate)
+        );
+        cellHTML.classList.add("moving-piece");
+        //   element.classList.add("moving-piece");
+      }
+    }
+  }
+}
+
+function clearHoldingArea() {
+  for (let i = 0; i < holdingWidth; i++) {
+    for (let j = 0; j < holdingHeight; j++) {
+        holdingBoardArray[j][i] = 0;
+        let cellHTML: HTMLElement = document.getElementById(
+          coordinatesHolding(i, j)
+        );
+        cellHTML.classList.remove("moving-piece");
+        //   element.classList.add("moving-piece");
+    }
+  }
+}
+
+function generateNewPieceHolding(
+  template: number[][],
+  positionX: number,
+  positionY: number
+) {
+  clearHoldingArea();
+ //generating the nextPiece on the holding area
+  for (let i = 0; i < template.length; i++) {
+    for (let j = 0; j < template[i].length; j++) {
+      if (template[i][j] === 1 || template[i][j] === 4) {
+        let yCoordinate: number = positionY + i;
+        let xCoordinate: number = positionX + j;
+        holdingBoardArray[yCoordinate][xCoordinate] = template[i][j];
+        let cellHTML: HTMLElement = document.getElementById(
+          coordinatesHolding(xCoordinate, yCoordinate)
         );
         cellHTML.classList.add("moving-piece");
         //   element.classList.add("moving-piece");
@@ -607,7 +682,6 @@ function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
 
 //gravity in intervals
 function goGoGravity() {
-  
   let speedFactor = Math.floor(linesClearedScore / 10);
   speedOfGravity = 800 - speedFactor * 100;
   if (speedOfGravity < 200) {
@@ -615,11 +689,45 @@ function goGoGravity() {
   }
   gravity = setInterval(moveDown, speedOfGravity);
 }
-let number = 0;
+
 function spawnNewPiece() {
   //encapsulate this later in a function that randomly creates new pieces and spawns them.
-  let randomNum: number = Math.floor(Math.random() * 7 + 1);
+  if (newGame) {
+    let randomNum: number = Math.floor(Math.random() * 7 + 1);
+    let newPiece: tetronomino = new pieceL();
+    switch (randomNum) {
+      case 1:
+        newPiece = new pieceJ();
+        break;
+      case 2:
+        newPiece = new pieceL();
+        break;
+      case 3:
+        newPiece = new pieceO();
+        break;
+      case 4:
+        newPiece = new pieceS();
+        break;
+      case 5:
+        newPiece = new pieceZ();
+        break;
+      case 6:
+        newPiece = new pieceT();
+        break;
+      case 7:
+        newPiece = new pieceI();
+        break;
+      default:
+        newPiece = new pieceT();
+        break;
+    }
+    holdingPiece = newPiece;
+    newGame = false;
+  }
+  generateNewPiece(holdingPiece.template[0], spawnX, spawnY);
+  currentPiece = holdingPiece;
 
+  let randomNum: number = Math.floor(Math.random() * 7 + 1);
   let newPiece: tetronomino = new pieceL();
   switch (randomNum) {
     case 1:
@@ -647,9 +755,9 @@ function spawnNewPiece() {
       newPiece = new pieceT();
       break;
   }
+  holdingPiece = newPiece;
+  generateNewPieceHolding(holdingPiece.template[0], 0, 0);
   // code to generate a new piece at spawn point
-  generateNewPiece(newPiece.template[0], spawnX, spawnY);
-  currentPiece = newPiece;
 }
 //code below this initialises the game
 spawnNewPiece();

@@ -1,16 +1,22 @@
 var gameBoard;
+var holdingBoardArray;
 var gameBoardDivs = document.querySelectorAll("#game-board div");
 var boardHeight = 25;
 var boardWidth = 12;
+var holdingHeight = 4;
+var holdingWidth = 4;
 var spawnX = 4;
 var spawnY = boardHeight - 4;
 var gravity;
 var gameBoardHTML = document.getElementById("game-board");
+var holdingArea = document.getElementById("holding-area");
 // let pieceRotationState: number = 4;
 var currentPiece;
 var pieceRotationState = 0;
 var linesClearedScore = 0;
 var speedOfGravity = 800;
+var holdingPiece;
+var newGame = true;
 var scoreHTML = document.querySelector(".score-p");
 scoreHTML.innerText = linesClearedScore.toString();
 //template 1 to 4 go in clockwise
@@ -76,6 +82,12 @@ function coordinates(x, y) {
     var coordinates = xCoordinate + "-" + yCoordinate;
     return coordinates;
 }
+function coordinatesHolding(x, y) {
+    var xCoordinate = x.toString();
+    var yCoordinate = y.toString();
+    var coordinates = xCoordinate + "h" + yCoordinate;
+    return coordinates;
+}
 function boxClicked() {
     var element = this;
     var x = parseInt(element.getAttribute("data-x"));
@@ -119,12 +131,33 @@ function setupBoard() {
         }
         gameBoard.push(array2d);
     }
+    // holding area code to be finalised
+    holdingArea.style.width = gridSquareDimension * holdingWidth + "px";
+    holdingArea.style.height = gridSquareDimension * holdingHeight + "px";
+    holdingBoardArray = [];
+    for (var i = holdingHeight - 1; i > -1; i--) {
+        var array2d = [];
+        for (var j = 0; j < holdingWidth; j++) {
+            var element = document.createElement("div");
+            element.setAttribute("id", j.toString() + "h" + i.toString());
+            element.setAttribute("data-x", j.toString());
+            element.setAttribute("data-y", i.toString());
+            element.setAttribute("data-state", "0");
+            element.setAttribute("class", "box");
+            element.addEventListener("click", boxClicked);
+            holdingArea.appendChild(element);
+            array2d.push(0);
+        }
+        holdingBoardArray.push(array2d);
+    }
 }
 setupBoard();
 function generateNewPiece(template, positionX, positionY) {
-    //function generates a new piece based on the template given, at the specified location entered, with the position being the left corner of the template
+    //function generates a new piece based on the template given,
+    //at the specified location entered, with the position being the left corner of the template
     //add a loop check of target cells to be filled with new template
-    //if cells on the left currently contain a wall (3) or other piece (2), but the ones on the right do not, move translation to the right posX+1
+    //if cells on the left currently contain a wall (3) or other piece (2),
+    //but the ones on the right do not, move translation to the right posX+1
     //only do these checks if the transformation contains a piece in that row or column
     //vice versa for the cells containing occupants on the right side but not on the left posX-1
     //if both the left and right contain neighbors, do nothing
@@ -136,6 +169,32 @@ function generateNewPiece(template, positionX, positionY) {
                 var xCoordinate = positionX + j;
                 gameBoard[yCoordinate][xCoordinate] = template[i][j];
                 var cellHTML = document.getElementById(coordinates(xCoordinate, yCoordinate));
+                cellHTML.classList.add("moving-piece");
+                //   element.classList.add("moving-piece");
+            }
+        }
+    }
+}
+function clearHoldingArea() {
+    for (var i = 0; i < holdingWidth; i++) {
+        for (var j = 0; j < holdingHeight; j++) {
+            holdingBoardArray[j][i] = 0;
+            var cellHTML = document.getElementById(coordinatesHolding(i, j));
+            cellHTML.classList.remove("moving-piece");
+            //   element.classList.add("moving-piece");
+        }
+    }
+}
+function generateNewPieceHolding(template, positionX, positionY) {
+    clearHoldingArea();
+    //generating the nextPiece on the holding area
+    for (var i = 0; i < template.length; i++) {
+        for (var j = 0; j < template[i].length; j++) {
+            if (template[i][j] === 1 || template[i][j] === 4) {
+                var yCoordinate = positionY + i;
+                var xCoordinate = positionX + j;
+                holdingBoardArray[yCoordinate][xCoordinate] = template[i][j];
+                var cellHTML = document.getElementById(coordinatesHolding(xCoordinate, yCoordinate));
                 cellHTML.classList.add("moving-piece");
                 //   element.classList.add("moving-piece");
             }
@@ -567,11 +626,47 @@ function rotatePiece(tetronomino, clockwise) {
 function goGoGravity() {
     var speedFactor = Math.floor(linesClearedScore / 10);
     speedOfGravity = 800 - speedFactor * 100;
+    if (speedOfGravity < 200) {
+        speedOfGravity = 150;
+    }
     gravity = setInterval(moveDown, speedOfGravity);
 }
-var number = 0;
 function spawnNewPiece() {
     //encapsulate this later in a function that randomly creates new pieces and spawns them.
+    if (newGame) {
+        var randomNum_1 = Math.floor(Math.random() * 7 + 1);
+        var newPiece_1 = new pieceL();
+        switch (randomNum_1) {
+            case 1:
+                newPiece_1 = new pieceJ();
+                break;
+            case 2:
+                newPiece_1 = new pieceL();
+                break;
+            case 3:
+                newPiece_1 = new pieceO();
+                break;
+            case 4:
+                newPiece_1 = new pieceS();
+                break;
+            case 5:
+                newPiece_1 = new pieceZ();
+                break;
+            case 6:
+                newPiece_1 = new pieceT();
+                break;
+            case 7:
+                newPiece_1 = new pieceI();
+                break;
+            default:
+                newPiece_1 = new pieceT();
+                break;
+        }
+        holdingPiece = newPiece_1;
+        newGame = false;
+    }
+    generateNewPiece(holdingPiece.template[0], spawnX, spawnY);
+    currentPiece = holdingPiece;
     var randomNum = Math.floor(Math.random() * 7 + 1);
     var newPiece = new pieceL();
     switch (randomNum) {
@@ -600,9 +695,9 @@ function spawnNewPiece() {
             newPiece = new pieceT();
             break;
     }
+    holdingPiece = newPiece;
+    generateNewPieceHolding(holdingPiece.template[0], 0, 0);
     // code to generate a new piece at spawn point
-    generateNewPiece(newPiece.template[0], spawnX, spawnY);
-    currentPiece = newPiece;
 }
 //code below this initialises the game
 spawnNewPiece();
