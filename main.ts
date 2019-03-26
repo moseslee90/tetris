@@ -786,6 +786,3 @@ function keydownEvent(event) {
   }
 }
 document.onkeydown = keydownEvent;
-
-//need to create death function
-//add scoring  variable to check line cleared
