@@ -13,10 +13,12 @@ class aiGameBoard {
   id: number;
   right: boolean;
   points: number;
+  rotate: number;
   constructor(id: number, right: boolean) {
     this.board = JSON.parse(JSON.stringify(gameBoard));
     this.id = id;
     this.right = right;
+    this.rotate = 0;
     this.points = 100;
   }
 }
@@ -26,7 +28,10 @@ function examineBoard(aiGameBoardObject: aiGameBoard) {
   //checking for blank pockets between 2 vertical blocks
   for (let i = 1; i < boardHeight - 1; i++) {
     for (let j = 1; j < boardWidth - 2; j++) {
-      if (aiGameBoardObject.board[i][j] === 0 && aiGameBoardObject.board[i+1][j] === 2) {
+      if (
+        aiGameBoardObject.board[i][j] === 0 &&
+        aiGameBoardObject.board[i + 1][j] === 2
+      ) {
         points = points - 5;
       }
     }
@@ -127,7 +132,7 @@ function FRIENDthinking() {
     if (resultDecisionsAI[k].points > highestScore) {
       highestScore = resultDecisionsAI[k].points;
       highestScoreID = resultDecisionsAI[k].id;
-      highestScoreRight = resultDecisionsAI[k].right;      
+      highestScoreRight = resultDecisionsAI[k].right;
     }
   }
   let direction: string = "none";
@@ -213,6 +218,63 @@ function allTheWayDownAI(gameBoardAI) {
   // checkLineFilled();
   //kill game here if resultant board has a piece at the ceiling
   // haveYouDied();
+}
+
+function rotatePieceAI(
+  //pass in the very first boardTemplate and get this function to return
+  //another boardTemplate
+  boardTemplate: number[][],
+  //we can probably pass in currentPiece for tetronomino
+  tetronomino: tetronomino,
+  //rotations will be some number from 0 to 3
+  rotations: number
+) {
+  // let currentTemplate: number[][] = tetronomino.template[pieceRotationState];
+  // let anchorTemplatePosX: number;
+  // let anchorTemplatePosY: number;
+  let nextTemplate: number[][] = tetronomino.template[rotations];
+  // let xCorner: number;
+  // let yCorner: number;
+  // for (let i = 0; i < currentTemplate.length; i++) {
+  //   for (let j = 0; j < currentTemplate[i].length; j++) {
+  //     if (currentTemplate[i][j] === 4) {
+  //       anchorTemplatePosY = i;
+  //       anchorTemplatePosX = j;
+  //     }
+  //   }
+  // }
+  // for (let i = 1; i < boardWidth - 1; i++) {
+  //   for (let j = 1; j < boardHeight; j++) {
+  //     //finds anchor which is identified as 4
+  //     if (boardTemplate[j][i] === 4) {
+  //       console.log("anchor found at " + i + "-" + j);
+  //       let anchorX = -anchorTemplatePosX;
+  //       let anchorY = -anchorTemplatePosY;
+  //       //xCoordinate and yCoordinate represent the location of the corner
+  //       //of the template inside the gameBoard
+  //       xCorner = i + anchorX;
+  //       yCorner = j + anchorY;
+  //     }
+  //   }
+  // }
+  for (let k = 1; k < boardWidth - 1; k++) {
+    for (let l = 1; l < boardHeight; l++) {
+      if (boardTemplate[l][k] === 1 || boardTemplate[l][k] === 4) {
+        boardTemplate[l].splice(k, 1, 0);
+      }
+    }
+  }
+  for (let i = 0; i < nextTemplate.length; i++) {
+    for (let j = 0; j < nextTemplate[i].length; j++) {
+      if (nextTemplate[i][j] === 1 || nextTemplate[i][j] === 4) {
+        let yCoordinate: number = spawnX + i;
+        let xCoordinate: number = spawnY + j;
+        boardTemplate[yCoordinate][xCoordinate] = nextTemplate[i][j];
+        //   element.classList.add("moving-piece");
+      }
+    }
+  }
+  return;
 }
 /*
 
