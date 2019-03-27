@@ -14,11 +14,9 @@ class aiGameBoard {
   right: boolean;
   points: number;
   rotate: number;
-  constructor(id: number, right: boolean) {
+  constructor(right: boolean) {
     this.board = JSON.parse(JSON.stringify(gameBoard));
-    this.id = id;
     this.right = right;
-    this.rotate = 0;
     this.points = 100;
   }
 }
@@ -49,6 +47,30 @@ function examineBoard(aiGameBoardObject: aiGameBoard) {
       points = points + 10;
     }
   }
+  //add points based on each line that is filled more
+  for (let i = 1; i < boardHeight - 1; i++) {
+    //everytime we commence scanning a new row, make sure rowFilled is reset to 0
+    let rowFilled = 0;
+    for (let j = boardWidth - 2; j > 0; j--) {
+      if (aiGameBoardObject.board[i][j] === 2) {
+        rowFilled++;
+      }
+    }
+    points = points + (5*(Math.pow(0.9,boardWidth-2-rowFilled)));
+  }
+  //add points based on a consistent row
+    for (let i = 1; i < boardHeight - 1; i++) {
+      //everytime we commence scanning a new row, make sure rowFilled is reset to 0
+      let rowlink = 0;
+      for (let j = 1; j < boardWidth-3; j++) {
+        if (aiGameBoardObject.board[i][j] === 2 && aiGameBoardObject.board[i][j+1]) {
+          rowlink++;
+        } else {
+          rowlink = 0;
+        }
+      }
+      points = points + (2*(Math.pow(1.1,rowlink)));
+    }
   aiGameBoardObject.points = points;
 }
 
@@ -108,31 +130,47 @@ function FRIENDthinking() {
   const maximumLeft: number = maxLeft(gameBoard);
   let resultDecisionsAI: aiGameBoard[] = [];
 
-  for (let k = 0; k < maximumRight; k++) {
-    let aiBoard = new aiGameBoard(k, true);
-    aiBoard.board = moveRightAI(k, aiBoard.board);
-    aiBoard.board = allTheWayDownAI(aiBoard.board);
-    // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
-    resultDecisionsAI.push(aiBoard);
+  for (let j = 0; j < 4; j++) {
+    //create 4 simulations of different rotations
+    for (let k = 0; k < maximumRight; k++) {
+      let aiBoard = new aiGameBoard(true);
+      aiBoard.id = k;
+      aiBoard.rotate = j;
+      aiBoard.board = rotatePieceAI(aiBoard.board,currentPiece,j);
+      aiBoard.board = moveRightAI(k, aiBoard.board);
+      aiBoard.board = allTheWayDownAI(aiBoard.board);
+      // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
+      resultDecisionsAI.push(aiBoard);
+    }
   }
-  for (let k = 1; k < maximumLeft; k++) {
-    let aiBoard = new aiGameBoard(k, false);
-    aiBoard.board = moveLeftAI(k, aiBoard.board);
-    aiBoard.board = allTheWayDownAI(aiBoard.board);
-    // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
-    resultDecisionsAI.push(aiBoard);
+
+  for (let j = 0; j < 4; j++) {
+    //create 4 simulations of different rotations
+    for (let k = 1; k < maximumLeft; k++) {
+      let aiBoard = new aiGameBoard(false);
+      aiBoard.rotate = j;
+      aiBoard.id = k;
+      aiBoard.board = rotatePieceAI(aiBoard.board,currentPiece,j);
+      aiBoard.board = moveLeftAI(k, aiBoard.board);
+      aiBoard.board = allTheWayDownAI(aiBoard.board);
+      // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
+      resultDecisionsAI.push(aiBoard);
+    }
   }
+  console.log(resultDecisionsAI);
   for (let k = 0; k < resultDecisionsAI.length; k++) {
     examineBoard(resultDecisionsAI[k]);
   }
   let highestScore: number = 0;
   let highestScoreID: number = 0;
   let highestScoreRight: boolean = true;
+  let highestScoreRotate: number = 0;
   for (let k = 0; k < resultDecisionsAI.length; k++) {
     if (resultDecisionsAI[k].points > highestScore) {
       highestScore = resultDecisionsAI[k].points;
       highestScoreID = resultDecisionsAI[k].id;
       highestScoreRight = resultDecisionsAI[k].right;
+      highestScoreRotate = resultDecisionsAI[k].rotate;
     }
   }
   let direction: string = "none";
@@ -141,7 +179,8 @@ function FRIENDthinking() {
   } else {
     direction = "left";
   }
-  console.log("Rotate: " + " " + "Move " + direction + " " + highestScoreID);
+  console.log("Rotate: " + highestScoreRotate + "Move " + direction + " " + highestScoreID);
+  
 }
 
 function moveRightAI(moves, gameBoardAI) {
@@ -267,14 +306,14 @@ function rotatePieceAI(
   for (let i = 0; i < nextTemplate.length; i++) {
     for (let j = 0; j < nextTemplate[i].length; j++) {
       if (nextTemplate[i][j] === 1 || nextTemplate[i][j] === 4) {
-        let yCoordinate: number = spawnX + i;
-        let xCoordinate: number = spawnY + j;
+        let yCoordinate: number = spawnY + i;
+        let xCoordinate: number = spawnX + j;
         boardTemplate[yCoordinate][xCoordinate] = nextTemplate[i][j];
         //   element.classList.add("moving-piece");
       }
     }
   }
-  return;
+  return boardTemplate;
 }
 /*
 

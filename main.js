@@ -435,6 +435,7 @@ function allTheWayDown() {
     //kill game here if resultant board has a piece at the ceiling
     haveYouDied();
     goGoGravity();
+    FRIENDthinking();
 }
 function rotatePiece(tetronomino, clockwise) {
     //get reference position of anchor

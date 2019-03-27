@@ -7,9 +7,8 @@
 //get moveRightAI and moveLeftAI to return some value
 //if they hit the edge or obstacle
 var aiGameBoard = /** @class */ (function () {
-    function aiGameBoard(id, right) {
+    function aiGameBoard(right) {
         this.board = JSON.parse(JSON.stringify(gameBoard));
-        this.id = id;
         this.right = right;
         this.points = 100;
     }
@@ -20,7 +19,8 @@ function examineBoard(aiGameBoardObject) {
     //checking for blank pockets between 2 vertical blocks
     for (var i = 1; i < boardHeight - 1; i++) {
         for (var j = 1; j < boardWidth - 2; j++) {
-            if (aiGameBoardObject.board[i][j] === 0 && aiGameBoardObject.board[i + 1][j] === 2) {
+            if (aiGameBoardObject.board[i][j] === 0 &&
+                aiGameBoardObject.board[i + 1][j] === 2) {
                 points = points - 5;
             }
         }
@@ -37,6 +37,31 @@ function examineBoard(aiGameBoardObject) {
         if (rowFilled === boardWidth - 2) {
             points = points + 10;
         }
+    }
+    //add points based on each line that is filled more
+    for (var i = 1; i < boardHeight - 1; i++) {
+        //everytime we commence scanning a new row, make sure rowFilled is reset to 0
+        var rowFilled = 0;
+        for (var j = boardWidth - 2; j > 0; j--) {
+            if (aiGameBoardObject.board[i][j] === 2) {
+                rowFilled++;
+            }
+        }
+        points = points + (5 * (Math.pow(0.9, boardWidth - 2 - rowFilled)));
+    }
+    //add points based on a consistent row
+    for (var i = 1; i < boardHeight - 1; i++) {
+        //everytime we commence scanning a new row, make sure rowFilled is reset to 0
+        var rowlink = 0;
+        for (var j = 1; j < boardWidth - 3; j++) {
+            if (aiGameBoardObject.board[i][j] === 2 && aiGameBoardObject.board[i][j + 1]) {
+                rowlink++;
+            }
+            else {
+                rowlink = 0;
+            }
+        }
+        points = points + (2 * (Math.pow(1.1, rowlink)));
     }
     aiGameBoardObject.points = points;
 }
@@ -94,26 +119,56 @@ function FRIENDthinking() {
     var maximumRight = maxRight(gameBoard);
     var maximumLeft = maxLeft(gameBoard);
     var resultDecisionsAI = [];
-    for (var k = 0; k < maximumRight; k++) {
-        var aiBoard = new aiGameBoard(k, true);
-        aiBoard.board = moveRightAI(k, aiBoard.board);
-        aiBoard.board = allTheWayDownAI(aiBoard.board);
-        // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
-        resultDecisionsAI.push(aiBoard);
+    for (var j = 0; j < 4; j++) {
+        //create 4 simulations of different rotations
+        for (var k = 0; k < maximumRight; k++) {
+            var aiBoard = new aiGameBoard(true);
+            aiBoard.id = k;
+            aiBoard.rotate = j;
+            aiBoard.board = rotatePieceAI(aiBoard.board, currentPiece, j);
+            aiBoard.board = moveRightAI(k, aiBoard.board);
+            aiBoard.board = allTheWayDownAI(aiBoard.board);
+            // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
+            resultDecisionsAI.push(aiBoard);
+        }
     }
-    for (var k = 1; k < maximumLeft; k++) {
-        var aiBoard = new aiGameBoard(k, false);
-        aiBoard.board = moveLeftAI(k, aiBoard.board);
-        aiBoard.board = allTheWayDownAI(aiBoard.board);
-        // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
-        resultDecisionsAI.push(aiBoard);
+    for (var j = 0; j < 4; j++) {
+        //create 4 simulations of different rotations
+        for (var k = 1; k < maximumLeft; k++) {
+            var aiBoard = new aiGameBoard(false);
+            aiBoard.rotate = j;
+            aiBoard.id = k;
+            aiBoard.board = rotatePieceAI(aiBoard.board, currentPiece, j);
+            aiBoard.board = moveLeftAI(k, aiBoard.board);
+            aiBoard.board = allTheWayDownAI(aiBoard.board);
+            // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
+            resultDecisionsAI.push(aiBoard);
+        }
     }
+    console.log(resultDecisionsAI);
     for (var k = 0; k < resultDecisionsAI.length; k++) {
         examineBoard(resultDecisionsAI[k]);
     }
+    var highestScore = 0;
+    var highestScoreID = 0;
+    var highestScoreRight = true;
+    var highestScoreRotate = 0;
     for (var k = 0; k < resultDecisionsAI.length; k++) {
-        console.log(resultDecisionsAI[k].points);
+        if (resultDecisionsAI[k].points > highestScore) {
+            highestScore = resultDecisionsAI[k].points;
+            highestScoreID = resultDecisionsAI[k].id;
+            highestScoreRight = resultDecisionsAI[k].right;
+            highestScoreRotate = resultDecisionsAI[k].rotate;
+        }
     }
+    var direction = "none";
+    if (highestScoreRight === true) {
+        direction = "right";
+    }
+    else {
+        direction = "left";
+    }
+    console.log("Rotate: " + highestScoreRotate + "Move " + direction + " " + highestScoreID);
 }
 function moveRightAI(moves, gameBoardAI) {
     for (var i = boardWidth - 2; i > 0; i--) {
@@ -191,56 +246,62 @@ function allTheWayDownAI(gameBoardAI) {
     //kill game here if resultant board has a piece at the ceiling
     // haveYouDied();
 }
-/*
-
-function checkLineFilledAI() {
-  //delete all rows before pushing lines above down
-  //actually we shld delete a row, move lines down, then repeat the check and
-  //delete new rows if they exist
-  let rowWhichWasDeleted: number = 1;
-  //keep a reference of the row which was deleted so we know to only move
-  //rows above this row down
-  for (let i = 1; i < boardHeight - 1; i++) {
-    //everytime we commence scanning a new row, make sure rowFilled is reset to 0
-    let rowFilled = 0;
-    for (let j = boardWidth - 2; j > 0; j--) {
-      if (gameBoardAI[i][j] === 2) {
-        rowFilled++;
-      }
-    }
-    //if a row is filled
-    if (rowFilled === boardWidth - 2) {
-      //deleteRow
-      linesClearedScore++;
-      scoreHTML.innerText = linesClearedScore.toString();
-      for (let j = boardWidth - 2; j > 0; j--) {
-        //update array: delete that row in the array
-        gameBoardAI[i].splice(j, 1, 0);
-      }
-      //up to this point, the row has been deleted, now we need to move the pieces
-      //which have a value of 2 down
-      //since we only want to delete one row first, we shld get out of the loop
-
-      //save this row to rowWhichWasDeleted
-      rowWhichWasDeleted = i;
-      //move 2s still remaining down by scanning upwards of the row which was deleted
-      for (let k = rowWhichWasDeleted + 1; k < boardHeight - 1; k++) {
-        for (let l = boardWidth - 2; l > 0; l--) {
-          if (gameBoardAI[k][l] === 2) {
-            //change the value of that cell in the array to a blank cell
-            gameBoardAI[k].splice(l, 1, 0);
-            gameBoardAI[k - 1].splice(l, 1, 2);
-            //remove the fixed piece property of the cell's previous occupied cell
-          }
+function rotatePieceAI(
+//pass in the very first boardTemplate and get this function to return
+//another boardTemplate
+boardTemplate, 
+//we can probably pass in currentPiece for tetronomino
+tetronomino, 
+//rotations will be some number from 0 to 3
+rotations) {
+    // let currentTemplate: number[][] = tetronomino.template[pieceRotationState];
+    // let anchorTemplatePosX: number;
+    // let anchorTemplatePosY: number;
+    var nextTemplate = tetronomino.template[rotations];
+    // let xCorner: number;
+    // let yCorner: number;
+    // for (let i = 0; i < currentTemplate.length; i++) {
+    //   for (let j = 0; j < currentTemplate[i].length; j++) {
+    //     if (currentTemplate[i][j] === 4) {
+    //       anchorTemplatePosY = i;
+    //       anchorTemplatePosX = j;
+    //     }
+    //   }
+    // }
+    // for (let i = 1; i < boardWidth - 1; i++) {
+    //   for (let j = 1; j < boardHeight; j++) {
+    //     //finds anchor which is identified as 4
+    //     if (boardTemplate[j][i] === 4) {
+    //       console.log("anchor found at " + i + "-" + j);
+    //       let anchorX = -anchorTemplatePosX;
+    //       let anchorY = -anchorTemplatePosY;
+    //       //xCoordinate and yCoordinate represent the location of the corner
+    //       //of the template inside the gameBoard
+    //       xCorner = i + anchorX;
+    //       yCorner = j + anchorY;
+    //     }
+    //   }
+    // }
+    for (var k = 1; k < boardWidth - 1; k++) {
+        for (var l = 1; l < boardHeight; l++) {
+            if (boardTemplate[l][k] === 1 || boardTemplate[l][k] === 4) {
+                boardTemplate[l].splice(k, 1, 0);
+            }
         }
-      }
-      //modifier to i to ensure that after a row is deleted, code checks that line again
-      //after the cells have dropped down to see if that new row has a filled row.
-      i--;
     }
-    //code to delete row ends here, scanning of next line continues
-  }
+    for (var i = 0; i < nextTemplate.length; i++) {
+        for (var j = 0; j < nextTemplate[i].length; j++) {
+            if (nextTemplate[i][j] === 1 || nextTemplate[i][j] === 4) {
+                var yCoordinate = spawnY + i;
+                var xCoordinate = spawnX + j;
+                boardTemplate[yCoordinate][xCoordinate] = nextTemplate[i][j];
+                //   element.classList.add("moving-piece");
+            }
+        }
+    }
+    return boardTemplate;
 }
+/*
 
 function haveYouDiedAI() {
   for (let i = 1; i < boardWidth - 2; i++) {
