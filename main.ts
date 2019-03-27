@@ -17,6 +17,7 @@ let linesClearedScore: number = 0;
 let speedOfGravity: number = 800;
 let holdingPiece: tetronomino;
 let newGame: boolean = true;
+let pause: boolean = false;
 
 let scoreHTML: HTMLElement = document.querySelector(".score-p");
 scoreHTML.innerText = linesClearedScore.toString();
@@ -690,6 +691,16 @@ function goGoGravity() {
   gravity = setInterval(moveDown, speedOfGravity);
 }
 
+function pauseGame() {
+  if (pause === true) {
+    pause = false;
+    goGoGravity();
+  } else {
+    pause = true;
+    clearInterval(gravity);
+  }
+}
+
 function spawnNewPiece() {
   //encapsulate this later in a function that randomly creates new pieces and spawns them.
   if (newGame) {
@@ -784,5 +795,23 @@ function keydownEvent(event) {
   if (x === 80) {
     allTheWayDown();
   }
+  if (x === 32) {
+    pauseGame();
+  }
 }
 document.onkeydown = keydownEvent;
+
+
+
+//implement this as game clock to call functions
+
+// var i =0;
+// setInterval(function(){
+//     i++;
+//     if(i % speed === 0){
+//         moveDown();
+//     }
+    
+    
+
+// },100)
