@@ -120,9 +120,23 @@ function FRIENDthinking() {
   for (let k = 0; k < resultDecisionsAI.length; k++) {
     examineBoard(resultDecisionsAI[k]);
   }
+  let highestScore: number = 0;
+  let highestScoreID: number = 0;
+  let highestScoreRight: boolean = true;
   for (let k = 0; k < resultDecisionsAI.length; k++) {
-    console.log(resultDecisionsAI[k].points);
+    if (resultDecisionsAI[k].points > highestScore) {
+      highestScore = resultDecisionsAI[k].points;
+      highestScoreID = resultDecisionsAI[k].id;
+      highestScoreRight = resultDecisionsAI[k].right;      
+    }
   }
+  let direction: string = "none";
+  if (highestScoreRight === true) {
+    direction = "right";
+  } else {
+    direction = "left";
+  }
+  console.log("Rotate: " + " " + "Move " + direction + " " + highestScoreID);
 }
 
 function moveRightAI(moves, gameBoardAI) {
@@ -201,55 +215,6 @@ function allTheWayDownAI(gameBoardAI) {
   // haveYouDied();
 }
 /*
-
-function checkLineFilledAI() {
-  //delete all rows before pushing lines above down
-  //actually we shld delete a row, move lines down, then repeat the check and
-  //delete new rows if they exist
-  let rowWhichWasDeleted: number = 1;
-  //keep a reference of the row which was deleted so we know to only move
-  //rows above this row down
-  for (let i = 1; i < boardHeight - 1; i++) {
-    //everytime we commence scanning a new row, make sure rowFilled is reset to 0
-    let rowFilled = 0;
-    for (let j = boardWidth - 2; j > 0; j--) {
-      if (gameBoardAI[i][j] === 2) {
-        rowFilled++;
-      }
-    }
-    //if a row is filled
-    if (rowFilled === boardWidth - 2) {
-      //deleteRow
-      linesClearedScore++;
-      scoreHTML.innerText = linesClearedScore.toString();
-      for (let j = boardWidth - 2; j > 0; j--) {
-        //update array: delete that row in the array
-        gameBoardAI[i].splice(j, 1, 0);
-      }
-      //up to this point, the row has been deleted, now we need to move the pieces
-      //which have a value of 2 down
-      //since we only want to delete one row first, we shld get out of the loop
-
-      //save this row to rowWhichWasDeleted
-      rowWhichWasDeleted = i;
-      //move 2s still remaining down by scanning upwards of the row which was deleted
-      for (let k = rowWhichWasDeleted + 1; k < boardHeight - 1; k++) {
-        for (let l = boardWidth - 2; l > 0; l--) {
-          if (gameBoardAI[k][l] === 2) {
-            //change the value of that cell in the array to a blank cell
-            gameBoardAI[k].splice(l, 1, 0);
-            gameBoardAI[k - 1].splice(l, 1, 2);
-            //remove the fixed piece property of the cell's previous occupied cell
-          }
-        }
-      }
-      //modifier to i to ensure that after a row is deleted, code checks that line again
-      //after the cells have dropped down to see if that new row has a filled row.
-      i--;
-    }
-    //code to delete row ends here, scanning of next line continues
-  }
-}
 
 function haveYouDiedAI() {
   for (let i = 1; i < boardWidth - 2; i++) {
