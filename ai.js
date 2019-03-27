@@ -7,11 +7,39 @@
 //get moveRightAI and moveLeftAI to return some value
 //if they hit the edge or obstacle
 var aiGameBoard = /** @class */ (function () {
-    function aiGameBoard() {
+    function aiGameBoard(id, right) {
         this.board = JSON.parse(JSON.stringify(gameBoard));
+        this.id = id;
+        this.right = right;
+        this.points = 100;
     }
     return aiGameBoard;
 }());
+function examineBoard(aiGameBoardObject) {
+    var points = 100;
+    //checking for blank pockets between 2 vertical blocks
+    for (var i = 1; i < boardHeight - 1; i++) {
+        for (var j = 1; j < boardWidth - 2; j++) {
+            if (aiGameBoardObject.board[i][j] === 0 && aiGameBoardObject.board[i + 1][j] === 2) {
+                points = points - 5;
+            }
+        }
+    }
+    //checking for lines filled
+    for (var i = 1; i < boardHeight - 1; i++) {
+        //everytime we commence scanning a new row, make sure rowFilled is reset to 0
+        var rowFilled = 0;
+        for (var j = boardWidth - 2; j > 0; j--) {
+            if (aiGameBoardObject.board[i][j] === 2) {
+                rowFilled++;
+            }
+        }
+        if (rowFilled === boardWidth - 2) {
+            points = points + 10;
+        }
+    }
+    aiGameBoardObject.points = points;
+}
 function maxRight(gameBoardAI) {
     var minColumnsToRightEdge = boardWidth;
     for (var i = boardWidth - 2; i > 1; i--) {
@@ -33,7 +61,7 @@ function maxRight(gameBoardAI) {
             }
         }
     }
-    return minColumnsToRightEdge - 1;
+    return minColumnsToRightEdge;
 }
 function maxLeft(gameBoardAI) {
     var minColumnsToLeftEdge = boardWidth;
@@ -66,20 +94,26 @@ function FRIENDthinking() {
     var maximumRight = maxRight(gameBoard);
     var maximumLeft = maxLeft(gameBoard);
     var resultDecisionsAI = [];
-    var startingArray = [];
     for (var k = 0; k < maximumRight; k++) {
-        var aiBoard = new aiGameBoard();
-        startingArray.push(aiBoard.board);
+        var aiBoard = new aiGameBoard(k, true);
+        aiBoard.board = moveRightAI(k, aiBoard.board);
+        aiBoard.board = allTheWayDownAI(aiBoard.board);
+        // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
+        resultDecisionsAI.push(aiBoard);
     }
-    var secondArray = [];
-    for (var k = 0; k < maximumRight; k++) {
-        secondArray.push(moveRightAI(k, startingArray[k]));
+    for (var k = 1; k < maximumLeft; k++) {
+        var aiBoard = new aiGameBoard(k, false);
+        aiBoard.board = moveLeftAI(k, aiBoard.board);
+        aiBoard.board = allTheWayDownAI(aiBoard.board);
+        // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
+        resultDecisionsAI.push(aiBoard);
     }
-    var thirdArray = [];
-    for (var k = 0; k < maximumRight; k++) {
-        thirdArray.push(allTheWayDownAI(secondArray[k]));
+    for (var k = 0; k < resultDecisionsAI.length; k++) {
+        examineBoard(resultDecisionsAI[k]);
     }
-    return thirdArray;
+    for (var k = 0; k < resultDecisionsAI.length; k++) {
+        console.log(resultDecisionsAI[k].points);
+    }
 }
 function moveRightAI(moves, gameBoardAI) {
     for (var i = boardWidth - 2; i > 0; i--) {
@@ -97,31 +131,22 @@ function moveRightAI(moves, gameBoardAI) {
     }
     return gameBoardAI;
 }
-// function moveRightAI(moves, gameBoardAI) {
-//   for (let i = boardWidth - 2; i > 0; i--) {
-//     for (let j = 1; j < boardHeight; j++) {
-//       if (
-//         (gameBoardAI[j][i] === 1 || gameBoardAI[j][i] === 4) &&
-//         (gameBoardAI[j][i + moves] === 3 || gameBoardAI[j][i + moves] === 2)
-//       ) {
-//         return;
-//       } else if (
-//         (gameBoardAI[j][i] === 1 || gameBoardAI[j][i] === 4) &&
-//         gameBoardAI[j][i + moves] === 0
-//       ) {
-//         //code to manipulate array
-//         if (gameBoardAI[j][i] === 4) {
-//           gameBoardAI[j].splice(i, 1, 0);
-//           gameBoardAI[j].splice(i + moves, 1, 4);
-//         } else {
-//           gameBoardAI[j].splice(i, 1, 0);
-//           gameBoardAI[j].splice(i + moves, 1, 1);
-//         }
-//       }
-//     }
-//   }
-//   return gameBoardAI;
-// }
+function moveLeftAI(moves, gameBoardAI) {
+    for (var i = boardWidth - 2; i > 0; i--) {
+        for (var j = 1; j < boardHeight; j++) {
+            //code to manipulate array
+            if (gameBoardAI[j][i] === 4) {
+                gameBoardAI[j].splice(i, 1, 0);
+                gameBoardAI[j].splice(i - moves, 1, 4);
+            }
+            else if (gameBoardAI[j][i] === 1) {
+                gameBoardAI[j].splice(i, 1, 0);
+                gameBoardAI[j].splice(i - moves, 1, 1);
+            }
+        }
+    }
+    return gameBoardAI;
+}
 function allTheWayDownAI(gameBoardAI) {
     var floorFound = false;
     var minRowsToFloor = boardHeight;
@@ -167,31 +192,6 @@ function allTheWayDownAI(gameBoardAI) {
     // haveYouDied();
 }
 /*
-function moveLeftAI() {
-  for (let i = 1; i < boardWidth - 1; i++) {
-    for (let j = 1; j < boardHeight; j++) {
-      if (
-        (gameBoardAI[j][i] === 1 || gameBoardAI[j][i] === 4) &&
-        (gameBoardAI[j][i - 1] === 3 || gameBoardAI[j][i - 1] === 2)
-      ) {
-        //edge hit
-        return;
-      } else if (
-        (gameBoardAI[j][i] === 1 || gameBoardAI[j][i] === 4) &&
-        gameBoardAI[j][i - 1] === 0
-      ) {
-        //code to manipulate array
-        if (gameBoardAI[j][i] === 4) {
-          gameBoardAI[j].splice(i, 1, 0);
-          gameBoardAI[j].splice(i - 1, 1, 4);
-        } else {
-          gameBoardAI[j].splice(i, 1, 0);
-          gameBoardAI[j].splice(i - 1, 1, 1);
-        }
-      }
-    }
-  }
-}
 
 function checkLineFilledAI() {
   //delete all rows before pushing lines above down
@@ -242,50 +242,6 @@ function checkLineFilledAI() {
   }
 }
 
-function allTheWayDownAI(gameBoardAI) {
-  let floorFound: boolean = false;
-  let minRowsToFloor: number = boardHeight;
-  for (let i = 1; i < boardHeight; i++) {
-    //this for-loop below scans the current row at the bottom for a floor, use it to
-    //instead scan how many rows till the floor
-    for (let j = boardWidth - 2; j > 0; j--) {
-      //1 or 4 found at this row
-      //need to check which cell containing a 1 or a 4 has the lowest number of
-      //steps till it reaches the floor
-      if (gameBoardAI[i][j] === 1 || gameBoardAI[i][j] === 4) {
-        //pieces found is true
-        //now execute code to find shortest number of downward translations till
-        //we hit a floor on one of the pieces
-        for (let k = 0; i - k >= 0; k++) {
-          if (gameBoardAI[i - k][j] === 2) {
-            minRowsToFloor = Math.min(k, minRowsToFloor);
-            floorFound = true;
-          }
-        }
-      }
-    }
-  }
-  //reset piece rotation state for the next piece
-
-  for (let i = 1; i < boardHeight; i++) {
-    for (let j = boardWidth - 2; j > 0; j--) {
-      if (gameBoardAI[i][j] === 1 || gameBoardAI[i][j] === 4) {
-        if (gameBoardAI[i][j] === 4) {
-          gameBoardAI[i].splice(j, 1, 0);
-          gameBoardAI[i - minRowsToFloor + 1].splice(j, 1, 2);
-        } else {
-          gameBoardAI[i].splice(j, 1, 0);
-          gameBoardAI[i - minRowsToFloor + 1].splice(j, 1, 2);
-        }
-      }
-    }
-  }
-  //code to generate new piece here
-  checkLineFilled();
-  //kill game here if resultant board has a piece at the ceiling
-  haveYouDied();
-}
-
 function haveYouDiedAI() {
   for (let i = 1; i < boardWidth - 2; i++) {
     if (gameBoardAI[boardHeight - 4][i] === 2) {
@@ -294,17 +250,4 @@ function haveYouDiedAI() {
     }
   }
 }
-
-//find limit of move right for current template
-
-//   while (
-//     //our condition for hitting the right edge
-//     edgeHit === false
-//   ) {
-//     moveRightAI();
-//   }
-//   for (let i = 0; i < array.length; i++) {
-//     const element = array[i];
-//   }
-//
 */
