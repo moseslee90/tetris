@@ -144,15 +144,15 @@ function FRIENDthinking() {
   const maximumRight: number = maxRight(gameBoard);
   const maximumLeft: number = maxLeft(gameBoard);
   let resultDecisionsAI: aiGameBoard[] = [];
-    for (let k = 1; k < maximumLeft; k++) {
-      let aiBoard = new aiGameBoard(false);
-      aiBoard.rotate = 0;
-      aiBoard.id = k;
-      aiBoard.board = moveLeftAI(k, aiBoard.board);
-      aiBoard.board = allTheWayDownAI(aiBoard.board);
-      // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
-      resultDecisionsAI.push(aiBoard);
-    }
+  for (let k = 1; k < maximumLeft; k++) {
+    let aiBoard = new aiGameBoard(false);
+    aiBoard.rotate = 0;
+    aiBoard.id = k;
+    aiBoard.board = moveLeftAI(k, aiBoard.board);
+    aiBoard.board = allTheWayDownAI(aiBoard.board);
+    // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
+    resultDecisionsAI.push(aiBoard);
+  }
 
   for (let k = 0; k < maximumRight; k++) {
     let aiBoard = new aiGameBoard(true);
@@ -240,6 +240,7 @@ function FRIENDthinking() {
   const maxLeftR2: number = maxLeft(secondRotateBoardL.board);
   for (let k = 0; k < maxLeftR2; k++) {
     let aiBoard: aiGameBoardV2 = new aiGameBoardV2(secondRotateBoardL.board);
+    aiBoard.right = false;
     aiBoard.id = k;
     aiBoard.rotate = 2;
     aiBoard.board = moveLeftAI(k, aiBoard.board);
@@ -255,13 +256,13 @@ function FRIENDthinking() {
   const maxLeftR3: number = maxLeft(thirdRotateBoardL.board);
   for (let k = 0; k < maxLeftR3; k++) {
     let aiBoard: aiGameBoardV2 = new aiGameBoardV2(thirdRotateBoardL.board);
+    aiBoard.right = false;
     aiBoard.id = k;
     aiBoard.rotate = 3;
     aiBoard.board = moveLeftAI(k, aiBoard.board);
     aiBoard.board = allTheWayDownAI(aiBoard.board);
     resultDecisionsAI.push(aiBoard);
   }
-
 
   console.log(resultDecisionsAI);
   for (let k = 0; k < resultDecisionsAI.length; k++) {
@@ -285,8 +286,30 @@ function FRIENDthinking() {
   } else {
     direction = "left";
   }
-  console.log("Rotate: " + highestScoreRotate + " Move " + direction
-   + " " + highestScoreID);
+  console.log(
+    "Rotate: " +
+      highestScoreRotate +
+      " Move " +
+      direction +
+      " " +
+      highestScoreID
+  );
+  function FRIENDmove() {
+    for (let i = 0; i < highestScoreRotate; i++) {
+      rotatePiece(currentPiece, true);
+    }
+    if (highestScoreRight === true) {
+      for (let i = 0; i < highestScoreID; i++) {
+        moveRight();
+      }
+    } else {
+      for (let i = 0; i < highestScoreID; i++) {
+        moveLeft();
+      }
+    }
+    allTheWayDown();
+  }
+  FRIENDmove();
 }
 
 function moveRightAI(moves, gameBoardAI) {

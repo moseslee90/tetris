@@ -202,6 +202,7 @@ function FRIENDthinking() {
     var maxLeftR2 = maxLeft(secondRotateBoardL.board);
     for (var k = 0; k < maxLeftR2; k++) {
         var aiBoard = new aiGameBoardV2(secondRotateBoardL.board);
+        aiBoard.right = false;
         aiBoard.id = k;
         aiBoard.rotate = 2;
         aiBoard.board = moveLeftAI(k, aiBoard.board);
@@ -213,6 +214,7 @@ function FRIENDthinking() {
     var maxLeftR3 = maxLeft(thirdRotateBoardL.board);
     for (var k = 0; k < maxLeftR3; k++) {
         var aiBoard = new aiGameBoardV2(thirdRotateBoardL.board);
+        aiBoard.right = false;
         aiBoard.id = k;
         aiBoard.rotate = 3;
         aiBoard.board = moveLeftAI(k, aiBoard.board);
@@ -242,8 +244,29 @@ function FRIENDthinking() {
     else {
         direction = "left";
     }
-    console.log("Rotate: " + highestScoreRotate + " Move " + direction
-        + " " + highestScoreID);
+    console.log("Rotate: " +
+        highestScoreRotate +
+        " Move " +
+        direction +
+        " " +
+        highestScoreID);
+    function FRIENDmove() {
+        for (var i = 0; i < highestScoreRotate; i++) {
+            rotatePiece(currentPiece, true);
+        }
+        if (highestScoreRight === true) {
+            for (var i = 0; i < highestScoreID; i++) {
+                moveRight();
+            }
+        }
+        else {
+            for (var i = 0; i < highestScoreID; i++) {
+                moveLeft();
+            }
+        }
+        allTheWayDown();
+    }
+    FRIENDmove();
 }
 function moveRightAI(moves, gameBoardAI) {
     for (var i = boardWidth - 2; i > 0; i--) {
