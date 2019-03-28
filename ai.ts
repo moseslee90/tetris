@@ -21,6 +21,18 @@ class aiGameBoard {
   }
 }
 
+class aiGameBoardV2 {
+  board: number[][];
+  id: number;
+  right: boolean;
+  points: number;
+  rotate: number;
+  constructor(newBoard: number[][]) {
+    this.board = JSON.parse(JSON.stringify(newBoard));
+    this.points = 100;
+  }
+}
+
 function examineBoard(aiGameBoardObject: aiGameBoard) {
   let points: number = 100;
   //checking for blank pockets between 2 vertical blocks
@@ -130,6 +142,81 @@ function FRIENDthinking() {
   const maximumLeft: number = maxLeft(gameBoard);
   let resultDecisionsAI: aiGameBoard[] = [];
 
+  //for each rotation, we need to recalculate maximumRight and maximum Left
+  //maximumLeft and Right can recalculate based on the board passed into them
+  //rotate, pass resultant board into maximumRIght/Left, get a constant
+  //and use that constant to loop through
+  let firstRotateBoardR: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
+  firstRotateBoardR.board = rotatePieceAI(firstRotateBoardR.board,currentPiece,1);
+  const maxRightR1: number = maxRight(firstRotateBoardR.board);
+  for (let k = 0; k < maxRightR1; k++) {
+    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(firstRotateBoardR.board);
+    aiBoard.right = true;
+    aiBoard.id = k
+    aiBoard.rotate = 1
+    aiBoard.board = moveRightAI(k, aiBoard.board);
+    aiBoard.board = allTheWayDownAI(aiBoard.board);
+    resultDecisionsAI.push(aiBoard);
+  }
+  let secondRotateBoardR: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
+  secondRotateBoardR.board = rotatePieceAI(secondRotateBoardR.board,currentPiece,2);
+  const maxRightR2: number = maxRight(secondRotateBoardR.board);
+  for (let k = 0; k < maxRightR2; k++) {
+    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(secondRotateBoardR.board);
+    aiBoard.right = true;
+    aiBoard.id = k
+    aiBoard.rotate = 2
+    aiBoard.board = moveRightAI(k, aiBoard.board);
+    aiBoard.board = allTheWayDownAI(aiBoard.board);
+    resultDecisionsAI.push(aiBoard);
+  }
+  let thirdRotateBoardR: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
+  thirdRotateBoardR.board = rotatePieceAI(thirdRotateBoardR.board,currentPiece,3);
+  const maxRightR3: number = maxRight(thirdRotateBoardR.board);
+  for (let k = 0; k < maxRightR3; k++) {
+    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(thirdRotateBoardR.board);
+    aiBoard.right = true;
+    aiBoard.id = k
+    aiBoard.rotate = 3
+    aiBoard.board = moveRightAI(k, aiBoard.board);
+    aiBoard.board = allTheWayDownAI(aiBoard.board);
+    resultDecisionsAI.push(aiBoard);
+  }
+  let firstRotateBoardL: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
+  firstRotateBoardL.board = rotatePieceAI(firstRotateBoardL.board,currentPiece,1);
+  const maxLeftR1: number = maxLeft(firstRotateBoardL.board);
+  for (let k = 0; k < maxLeftR1; k++) {
+    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(firstRotateBoardL.board);
+    aiBoard.right = false;
+    aiBoard.id = k
+    aiBoard.rotate = 1
+    aiBoard.board = moveLeftAI(k, aiBoard.board);
+    aiBoard.board = allTheWayDownAI(aiBoard.board);
+    resultDecisionsAI.push(aiBoard);
+  }
+  let secondRotateBoardL: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
+  secondRotateBoardL.board = rotatePieceAI(secondRotateBoardL.board,currentPiece,2);
+  const maxLeftR2: number = maxLeft(secondRotateBoardL.board);
+  for (let k = 0; k < maxLeftR2; k++) {
+    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(secondRotateBoardL.board);
+    aiBoard.id = k
+    aiBoard.rotate = 2
+    aiBoard.board = moveLeftAI(k, aiBoard.board);
+    aiBoard.board = allTheWayDownAI(aiBoard.board);
+    resultDecisionsAI.push(aiBoard);
+  }
+  let thirdRotateBoardL: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
+  thirdRotateBoardL.board = rotatePieceAI(thirdRotateBoardL.board,currentPiece,3);
+  const maxLeftR3: number = maxLeft(thirdRotateBoardL.board);
+  for (let k = 0; k < maxLeftR3; k++) {
+    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(thirdRotateBoardL.board);
+    aiBoard.id = k
+    aiBoard.rotate = 3
+    aiBoard.board = moveLeftAI(k, aiBoard.board);
+    aiBoard.board = allTheWayDownAI(aiBoard.board);
+    resultDecisionsAI.push(aiBoard);
+  }
+/*
   for (let j = 0; j < 4; j++) {
     //create 4 simulations of different rotations
     for (let k = 0; k < maximumRight; k++) {
@@ -179,8 +266,10 @@ function FRIENDthinking() {
   } else {
     direction = "left";
   }
-  console.log("Rotate: " + highestScoreRotate + "Move " + direction + " " + highestScoreID);
-  
+  console.log("Rotate: " + highestScoreRotate + "Move " + direction
+   + " " + highestScoreID);
+*/
+  console.log(resultDecisionsAI);
 }
 
 function moveRightAI(moves, gameBoardAI) {
