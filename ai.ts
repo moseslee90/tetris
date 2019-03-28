@@ -309,7 +309,7 @@ function FRIENDthinking() {
     }
     allTheWayDown();
   }
-  FRIENDmove();
+  // FRIENDmove();
 }
 
 function moveRightAI(moves, gameBoardAI) {

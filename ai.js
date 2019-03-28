@@ -266,7 +266,7 @@ function FRIENDthinking() {
         }
         allTheWayDown();
     }
-    FRIENDmove();
+    // FRIENDmove();
 }
 function moveRightAI(moves, gameBoardAI) {
     for (var i = boardWidth - 2; i > 0; i--) {
