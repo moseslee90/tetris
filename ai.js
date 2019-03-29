@@ -22,17 +22,21 @@ var aiGameBoardV2 = /** @class */ (function () {
     return aiGameBoardV2;
 }());
 function examineBoard(aiGameBoardObject) {
-    var points = 100;
+    var points = 2000;
     //checking for blank pockets between 2 vertical blocks
     for (var i = 1; i < boardHeight - 1; i++) {
         for (var j = 1; j < boardWidth - 2; j++) {
-            if (aiGameBoardObject.board[i][j] === 0 &&
-                aiGameBoardObject.board[i + 1][j] === 2) {
-                points = points - 5;
+            if (aiGameBoardObject.board[i][j] === 0) {
+                for (var k = i + 1; k < boardHeight - 1; k++) {
+                    if (aiGameBoardObject.board[k][j] === 2) {
+                        points = points - 20;
+                    }
+                }
             }
         }
     }
     //checking for lines filled
+    var rowsFilled = 0;
     for (var i = 1; i < boardHeight - 1; i++) {
         //everytime we commence scanning a new row, make sure rowFilled is reset to 0
         var rowFilled = 0;
@@ -42,34 +46,64 @@ function examineBoard(aiGameBoardObject) {
             }
         }
         if (rowFilled === boardWidth - 2) {
-            points = points + 10;
+            rowsFilled++;
         }
     }
-    //add points based on each line that is filled more
+    switch (rowsFilled) {
+        case 1:
+            points = points + 10;
+            break;
+        case 2:
+            points = points + 25;
+            break;
+        case 3:
+            points = points + 45;
+            break;
+        case 4:
+            points = points + 70;
+            break;
+        default:
+            break;
+    }
+    //penalise for high builds
+    var heightPenalty = 0;
     for (var i = 1; i < boardHeight - 1; i++) {
         //everytime we commence scanning a new row, make sure rowFilled is reset to 0
-        var rowFilled = 0;
         for (var j = boardWidth - 2; j > 0; j--) {
-            if (aiGameBoardObject.board[i][j] === 2) {
-                rowFilled++;
+            if (aiGameBoardObject.board[i][j] === 2 && i > 4) {
+                heightPenalty = Math.pow(1.5, i);
             }
         }
-        points = points + 5 * Math.pow(0.9, boardWidth - 2 - rowFilled);
     }
+    points = points - heightPenalty;
     //add points based on a consistent row
     for (var i = 1; i < boardHeight - 1; i++) {
         //everytime we commence scanning a new row, make sure rowFilled is reset to 0
         var rowlink = 0;
         for (var j = 1; j < boardWidth - 3; j++) {
             if (aiGameBoardObject.board[i][j] === 2 &&
-                aiGameBoardObject.board[i][j + 1]) {
+                aiGameBoardObject.board[i][j + 1] === 2) {
                 rowlink++;
+                points = points + Math.pow(1.3, rowlink);
             }
             else {
                 rowlink = 0;
             }
         }
-        points = points + 2 * Math.pow(1.1, rowlink);
+    }
+    //add points if pieces are against wall
+    for (var i = 1; i < boardHeight - 1; i++) {
+        //everytime we commence scanning a new row, make sure rowFilled is reset to 0
+        var borderPiece = 0;
+        for (var j = 1; j < boardWidth - 2; j++) {
+            if ((aiGameBoardObject.board[i][j] === 2 &&
+                aiGameBoardObject.board[i][j + 1] === 3) ||
+                (aiGameBoardObject.board[i][j] === 2 &&
+                    aiGameBoardObject.board[i][j - 1] === 3)) {
+                borderPiece++;
+            }
+        }
+        points = points + 1.5 * borderPiece;
     }
     aiGameBoardObject.points = points;
 }
@@ -117,7 +151,7 @@ function maxLeft(gameBoardAI) {
             }
         }
     }
-    return minColumnsToLeftEdge - 1;
+    return minColumnsToLeftEdge;
 }
 function FRIENDthinking() {
     //edgeHit would be a variable that helps us determine if the edge has been hit
@@ -128,16 +162,18 @@ function FRIENDthinking() {
     var maximumLeft = maxLeft(gameBoard);
     var resultDecisionsAI = [];
     for (var k = 1; k < maximumLeft; k++) {
-        var aiBoard = new aiGameBoard(false);
-        aiBoard.rotate = 0;
+        var aiBoard = new aiGameBoardV2(gameBoard);
+        aiBoard.right = false;
         aiBoard.id = k;
+        aiBoard.rotate = 0;
         aiBoard.board = moveLeftAI(k, aiBoard.board);
         aiBoard.board = allTheWayDownAI(aiBoard.board);
         // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
         resultDecisionsAI.push(aiBoard);
     }
     for (var k = 0; k < maximumRight; k++) {
-        var aiBoard = new aiGameBoard(true);
+        var aiBoard = new aiGameBoardV2(gameBoard);
+        aiBoard.right = true;
         aiBoard.id = k;
         aiBoard.rotate = 0;
         aiBoard.board = moveRightAI(k, aiBoard.board);
@@ -185,8 +221,12 @@ function FRIENDthinking() {
         aiBoard.board = allTheWayDownAI(aiBoard.board);
         resultDecisionsAI.push(aiBoard);
     }
-    var firstRotateBoardL = new aiGameBoardV2(gameBoard);
-    firstRotateBoardL.board = rotatePieceAI(firstRotateBoardL.board, currentPiece, 1);
+    var firstRotateBoardL = new aiGameBoardV2(firstRotateBoardR.board);
+    // firstRotateBoardL.board = rotatePieceAI(
+    //   firstRotateBoardL.board,
+    //   currentPiece,
+    //   1
+    // );
     var maxLeftR1 = maxLeft(firstRotateBoardL.board);
     for (var k = 0; k < maxLeftR1; k++) {
         var aiBoard = new aiGameBoardV2(firstRotateBoardL.board);
@@ -197,8 +237,12 @@ function FRIENDthinking() {
         aiBoard.board = allTheWayDownAI(aiBoard.board);
         resultDecisionsAI.push(aiBoard);
     }
-    var secondRotateBoardL = new aiGameBoardV2(gameBoard);
-    secondRotateBoardL.board = rotatePieceAI(secondRotateBoardL.board, currentPiece, 2);
+    var secondRotateBoardL = new aiGameBoardV2(secondRotateBoardR.board);
+    // secondRotateBoardL.board = rotatePieceAI(
+    //   secondRotateBoardL.board,
+    //   currentPiece,
+    //   2
+    // );
     var maxLeftR2 = maxLeft(secondRotateBoardL.board);
     for (var k = 0; k < maxLeftR2; k++) {
         var aiBoard = new aiGameBoardV2(secondRotateBoardL.board);
@@ -209,8 +253,12 @@ function FRIENDthinking() {
         aiBoard.board = allTheWayDownAI(aiBoard.board);
         resultDecisionsAI.push(aiBoard);
     }
-    var thirdRotateBoardL = new aiGameBoardV2(gameBoard);
-    thirdRotateBoardL.board = rotatePieceAI(thirdRotateBoardL.board, currentPiece, 3);
+    var thirdRotateBoardL = new aiGameBoardV2(thirdRotateBoardR.board);
+    // thirdRotateBoardL.board = rotatePieceAI(
+    //   thirdRotateBoardL.board,
+    //   currentPiece,
+    //   3
+    // );
     var maxLeftR3 = maxLeft(thirdRotateBoardL.board);
     for (var k = 0; k < maxLeftR3; k++) {
         var aiBoard = new aiGameBoardV2(thirdRotateBoardL.board);
@@ -266,7 +314,7 @@ function FRIENDthinking() {
         }
         allTheWayDown();
     }
-    // FRIENDmove();
+    FRIENDmove();
 }
 function moveRightAI(moves, gameBoardAI) {
     for (var i = boardWidth - 2; i > 0; i--) {
@@ -285,7 +333,7 @@ function moveRightAI(moves, gameBoardAI) {
     return gameBoardAI;
 }
 function moveLeftAI(moves, gameBoardAI) {
-    for (var i = boardWidth - 2; i > 0; i--) {
+    for (var i = 1; i < boardWidth - 2; i++) {
         for (var j = 1; j < boardHeight; j++) {
             //code to manipulate array
             if (gameBoardAI[j][i] === 4) {
