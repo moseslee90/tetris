@@ -22,6 +22,9 @@ let pause: boolean = false;
 let scoreHTML: HTMLElement = document.querySelector(".score-p");
 scoreHTML.innerText = linesClearedScore.toString();
 
+let firstBaby = new individual();
+firstBaby.randomGenes();
+
 interface tetronomino {
   template: number[][][];
 }

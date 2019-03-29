@@ -33,15 +33,16 @@ class aiGameBoardV2 {
   }
 }
 
-function examineBoard(aiGameBoardObject: aiGameBoard) {
-  let points: number = 2000;
+function examineBoard(aiGameBoardObject: aiGameBoard, baby: individual) {
+  let points: number = baby.genes.pointsGene;
+  //let's try to create an individual with genes
   //checking for blank pockets between 2 vertical blocks
   for (let i = 1; i < boardHeight - 1; i++) {
     for (let j = 1; j < boardWidth - 2; j++) {
       if (aiGameBoardObject.board[i][j] === 0) {
         for (let k = i + 1; k < boardHeight - 1; k++) {
           if (aiGameBoardObject.board[k][j] === 2) {
-            points = points - 20;
+            points = points - baby.genes.blankPocketGene;
           }
         }
       }
@@ -63,16 +64,16 @@ function examineBoard(aiGameBoardObject: aiGameBoard) {
   }
   switch (rowsFilled) {
     case 1:
-      points = points + 10;
+      points = points + baby.genes.oneRowFilledGene;
       break;
     case 2:
-      points = points + 25;
+      points = points + baby.genes.twoRowsFilledGene;
       break;
     case 3:
-      points = points + 45;
+      points = points + baby.genes.threeRowsFilledGene;
       break;
     case 4:
-      points = points + 70;
+      points = points + baby.genes.fourRowsFilledGene;
       break;
   
     default:
@@ -85,7 +86,7 @@ function examineBoard(aiGameBoardObject: aiGameBoard) {
     //everytime we commence scanning a new row, make sure rowFilled is reset to 0
     for (let j = boardWidth - 2; j > 0; j--) {
       if (aiGameBoardObject.board[i][j] === 2 && i > 4) {
-        heightPenalty = Math.pow(1.5, i);
+        heightPenalty = Math.pow(baby.genes.heightPenaltyGene, i);
       }
     }
   }
@@ -100,7 +101,7 @@ function examineBoard(aiGameBoardObject: aiGameBoard) {
         aiGameBoardObject.board[i][j + 1] === 2
       ) {
         rowlink++;
-        points = points + Math.pow(1.3, rowlink);
+        points = points + Math.pow(baby.genes.consecutiveRowGene, rowlink);
       } else {
         rowlink = 0;
       }
@@ -120,7 +121,7 @@ function examineBoard(aiGameBoardObject: aiGameBoard) {
         borderPiece++;
       }
     }
-    points = points + 1.5 * borderPiece;
+    points = points + (baby.genes.borderGene * borderPiece);
   }
   aiGameBoardObject.points = points;
 }
@@ -310,7 +311,7 @@ function FRIENDthinking() {
 
   console.log(resultDecisionsAI);
   for (let k = 0; k < resultDecisionsAI.length; k++) {
-    examineBoard(resultDecisionsAI[k]);
+    examineBoard(resultDecisionsAI[k], firstBaby);
   }
   let highestScore: number = 0;
   let highestScoreID: number = 0;
