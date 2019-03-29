@@ -315,7 +315,11 @@ function FRIENDthinking() {
         }
         allTheWayDown();
     }
-    FRIENDmove();
+    if (gameOver === true) {
+    }
+    else {
+        FRIENDmove();
+    }
 }
 function moveRightAI(moves, gameBoardAI) {
     for (var i = boardWidth - 2; i > 0; i--) {

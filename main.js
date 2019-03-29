@@ -18,6 +18,7 @@ var speedOfGravity = 800;
 var holdingPiece;
 var newGame = true;
 var pause = false;
+var gameOver = false;
 var scoreHTML = document.querySelector(".score-p");
 scoreHTML.innerText = linesClearedScore.toString();
 var firstBaby = new individual();
@@ -229,8 +230,12 @@ function haveYouDied() {
                 //good babies go here
                 goodBabies.push(firstBaby);
             }
-            if (numberOfRuns > 100) {
-                alert("5 runs over");
+            if (numberOfRuns > 1000) {
+                gameOver = true;
+                clearInterval(gravity);
+                gameBoard = [];
+                gameBoardHTML.innerHTML = "";
+                alert("1000 runs over");
             }
             else {
                 linesClearedScore = 0;
@@ -465,7 +470,7 @@ function allTheWayDown() {
     haveYouDied();
     goGoGravity();
     // FRIENDthinking();
-    setTimeout(FRIENDthinking, 10);
+    setTimeout(FRIENDthinking, 1);
 }
 function rotatePiece(tetronomino, clockwise) {
     //get reference position of anchor

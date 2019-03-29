@@ -19,14 +19,14 @@ var individual = /** @class */ (function () {
     }
     individual.prototype.randomGenes = function () {
         var points = 2000;
-        var heightPenalty = Math.floor(Math.random() * 5) + 1;
-        var oneRowFilled = Math.floor(Math.random() * 21);
-        var twoRowsFilled = Math.floor(Math.random() * 21) + 20;
-        var threeRowsFilled = Math.floor(Math.random() * 21) + 40;
-        var fourRowsFilled = Math.floor(Math.random() * 21) + 60;
-        var consecutiveRow = Math.floor(Math.random() * 3) + 1;
-        var blankPocket = Math.floor(Math.random() * 31);
-        var borderPoints = Math.floor(Math.random() * 3) + 1;
+        var heightPenalty = (Math.random() * 5) + 1;
+        var oneRowFilled = (Math.random() * 21);
+        var twoRowsFilled = (Math.random() * 21) + 20;
+        var threeRowsFilled = (Math.random() * 21) + 40;
+        var fourRowsFilled = (Math.random() * 21) + 60;
+        var consecutiveRow = (Math.random() * 3) + 1;
+        var blankPocket = (Math.random() * 31);
+        var borderPoints = (Math.random() * 3) + 1;
         this.genes = {
             pointsGene: points,
             heightPenaltyGene: heightPenalty,

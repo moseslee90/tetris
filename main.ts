@@ -18,6 +18,7 @@ let speedOfGravity: number = 800;
 let holdingPiece: tetronomino;
 let newGame: boolean = true;
 let pause: boolean = false;
+let gameOver: boolean = false;
 
 let scoreHTML: HTMLElement = document.querySelector(".score-p");
 scoreHTML.innerText = linesClearedScore.toString();
@@ -265,9 +266,14 @@ function haveYouDied() {
       //you have died
       if (linesClearedScore > 80) {
         //good babies go here
+        firstBaby.fitness = linesClearedScore;
         goodBabies.push(firstBaby);
       }
       if (numberOfRuns > 1000) {
+        gameOver = true;
+        clearInterval(gravity);
+        gameBoard = [];
+        gameBoardHTML.innerHTML = "";
         alert("1000 runs over");
       } else {
         linesClearedScore = 0;
