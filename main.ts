@@ -4,7 +4,7 @@ let gameBoardDivs: NodeList = document.querySelectorAll("#game-board div");
 let boardHeight: number = 25;
 let boardWidth: number = 12;
 let holdingHeight: number = 4;
-let holdingWidth:number = 4;
+let holdingWidth: number = 4;
 let spawnX: number = 4;
 let spawnY: number = boardHeight - 4;
 let gravity;
@@ -23,7 +23,20 @@ let scoreHTML: HTMLElement = document.querySelector(".score-p");
 scoreHTML.innerText = linesClearedScore.toString();
 
 let firstBaby = new individual();
-firstBaby.randomGenes();
+let numberOfRuns = 0;
+let goodBabies: individual[] = [];
+
+let goodBaby = new individual();
+goodBaby.randomGenes();
+goodBaby.genes.pointsGene = 2000;
+goodBaby.genes.blankPocketGene = 20;
+goodBaby.genes.oneRowFilledGene = 10;
+goodBaby.genes.twoRowsFilledGene = 25;
+goodBaby.genes.threeRowsFilledGene = 45;
+goodBaby.genes.fourRowsFilledGene = 70;
+goodBaby.genes.heightPenaltyGene = 1.5;
+goodBaby.genes.consecutiveRowGene = 1.3;
+goodBaby.genes.borderGene = 1.3;
 
 interface tetronomino {
   template: number[][][];
@@ -113,10 +126,15 @@ function boxClicked() {
 }
 
 function setupBoard() {
+  numberOfRuns++;
+  firstBaby = new individual();
+  firstBaby.randomGenes();
   let gridSquareDimension = 30;
   gameBoardHTML.style.width = gridSquareDimension * boardWidth + "px";
   gameBoardHTML.style.height = gridSquareDimension * boardHeight + "px";
   gameBoard = [];
+  holdingArea.innerHTML = "";
+  gameBoardHTML.innerHTML = "";
   //creates board from bottom right to top left,
   for (let i = boardHeight - 1; i > -1; i--) {
     let array2d: number[] = [];
@@ -166,7 +184,6 @@ function setupBoard() {
       holdingArea.appendChild(element);
 
       array2d.push(0);
-
     }
     holdingBoardArray.push(array2d);
   }
@@ -209,12 +226,12 @@ function generateNewPiece(
 function clearHoldingArea() {
   for (let i = 0; i < holdingWidth; i++) {
     for (let j = 0; j < holdingHeight; j++) {
-        holdingBoardArray[j][i] = 0;
-        let cellHTML: HTMLElement = document.getElementById(
-          coordinatesHolding(i, j)
-        );
-        cellHTML.classList.remove("moving-piece");
-        //   element.classList.add("moving-piece");
+      holdingBoardArray[j][i] = 0;
+      let cellHTML: HTMLElement = document.getElementById(
+        coordinatesHolding(i, j)
+      );
+      cellHTML.classList.remove("moving-piece");
+      //   element.classList.add("moving-piece");
     }
   }
 }
@@ -225,7 +242,7 @@ function generateNewPieceHolding(
   positionY: number
 ) {
   clearHoldingArea();
- //generating the nextPiece on the holding area
+  //generating the nextPiece on the holding area
   for (let i = 0; i < template.length; i++) {
     for (let j = 0; j < template[i].length; j++) {
       if (template[i][j] === 1 || template[i][j] === 4) {
@@ -246,7 +263,16 @@ function haveYouDied() {
   for (let i = 1; i < boardWidth - 2; i++) {
     if (gameBoard[boardHeight - 4][i] === 2) {
       //you have died
-      alert("You Died.");
+      if (linesClearedScore > 80) {
+        //good babies go here
+        goodBabies.push(firstBaby);
+      }
+      if (numberOfRuns > 1000) {
+        alert("1000 runs over");
+      } else {
+        linesClearedScore = 0;
+        setupBoard();
+      }
     }
   }
 }
@@ -493,7 +519,7 @@ function allTheWayDown() {
   haveYouDied();
   goGoGravity();
   // FRIENDthinking();
-  setTimeout( FRIENDthinking, 500);
+  setTimeout(FRIENDthinking, 1);
 }
 
 function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
@@ -806,8 +832,6 @@ function keydownEvent(event) {
 }
 document.onkeydown = keydownEvent;
 
-
-
 //implement this as game clock to call functions
 
 // var i =0;
@@ -816,7 +840,5 @@ document.onkeydown = keydownEvent;
 //     if(i % speed === 0){
 //         moveDown();
 //     }
-    
-    
 
 // },100)

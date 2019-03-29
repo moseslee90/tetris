@@ -1,11 +1,15 @@
-class gene {
-  geneName: string;
-  geneVariable: number;
+class genes {
+  pointsGene: number;
+  heightPenaltyGene: number;
+  oneRowFilledGene: number;
+  twoRowsFilledGene: number;
+  threeRowsFilledGene: number;
+  fourRowsFilledGene: number;
+  consecutiveRowGene: number;
+  blankPocketGene: number;
+  borderGene: number;
 
-  constructor(geneName: string, geneVariable: number) {
-    this.geneName = geneName;
-    this.geneVariable = geneVariable;
-  }
+  constructor() {}
 }
 
 interface genes {
@@ -23,21 +27,33 @@ interface genes {
 class individual {
   genes: genes;
   fitness: number;
-  constructor() {}
+  constructor() {
+    this.genes = {
+      pointsGene: 0,
+      heightPenaltyGene: 0,
+      oneRowFilledGene: 0,
+      twoRowsFilledGene: 0,
+      threeRowsFilledGene: 0,
+      fourRowsFilledGene: 0,
+      consecutiveRowGene: 0,
+      blankPocketGene: 0,
+      borderGene: 0
+    };
+  }
   randomGenes() {
     let points = 2000;
-    let heightPenalty: number = Math.floor(Math.random() * 31);
+    let heightPenalty: number = (Math.random() * 5) + 1;
 
-    let oneRowFilled: number = Math.floor(Math.random() * 31);
-    let twoRowsFilled: number = Math.floor(Math.random() * 31);
-    let threeRowsFilled: number = Math.floor(Math.random() * 31);
-    let fourRowsFilled: number = Math.floor(Math.random() * 31);
+    let oneRowFilled: number = (Math.random() * 21);
+    let twoRowsFilled: number = (Math.random() * 21) + 20;
+    let threeRowsFilled: number = (Math.random() * 21) + 40;
+    let fourRowsFilled: number = (Math.random() * 21) + 60;
 
-    let consecutiveRow: number = Math.floor(Math.random() * 31);
+    let consecutiveRow: number = (Math.random() * 3) + 1;
 
-    let blankPocket: number = Math.floor(Math.random() * 31);
-    
-    let borderPoints: number = Math.floor(Math.random() * 31);
+    let blankPocket: number = (Math.random() * 31);
+
+    let borderPoints: number = (Math.random() * 3) + 1;
 
     this.genes = {
       pointsGene: points,

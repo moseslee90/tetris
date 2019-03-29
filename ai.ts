@@ -311,7 +311,7 @@ function FRIENDthinking() {
 
   console.log(resultDecisionsAI);
   for (let k = 0; k < resultDecisionsAI.length; k++) {
-    examineBoard(resultDecisionsAI[k], firstBaby);
+    examineBoard(resultDecisionsAI[k], goodBaby);
   }
   let highestScore: number = 0;
   let highestScoreID: number = 0;

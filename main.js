@@ -20,6 +20,20 @@ var newGame = true;
 var pause = false;
 var scoreHTML = document.querySelector(".score-p");
 scoreHTML.innerText = linesClearedScore.toString();
+var firstBaby = new individual();
+var numberOfRuns = 0;
+var goodBabies = [];
+var goodBaby = new individual();
+goodBaby.randomGenes();
+goodBaby.genes.pointsGene = 2000;
+goodBaby.genes.blankPocketGene = 20;
+goodBaby.genes.oneRowFilledGene = 10;
+goodBaby.genes.twoRowsFilledGene = 25;
+goodBaby.genes.threeRowsFilledGene = 45;
+goodBaby.genes.fourRowsFilledGene = 70;
+goodBaby.genes.heightPenaltyGene = 1.5;
+goodBaby.genes.consecutiveRowGene = 1.3;
+goodBaby.genes.borderGene = 1.3;
 //template 1 to 4 go in clockwise
 function pieceL() {
     this.template = [
@@ -96,10 +110,15 @@ function boxClicked() {
     console.log("box clicked at " + element.getAttribute("id"));
 }
 function setupBoard() {
+    numberOfRuns++;
+    firstBaby = new individual();
+    firstBaby.randomGenes();
     var gridSquareDimension = 30;
     gameBoardHTML.style.width = gridSquareDimension * boardWidth + "px";
     gameBoardHTML.style.height = gridSquareDimension * boardHeight + "px";
     gameBoard = [];
+    holdingArea.innerHTML = "";
+    gameBoardHTML.innerHTML = "";
     //creates board from bottom right to top left,
     for (var i = boardHeight - 1; i > -1; i--) {
         var array2d = [];
@@ -206,7 +225,17 @@ function haveYouDied() {
     for (var i = 1; i < boardWidth - 2; i++) {
         if (gameBoard[boardHeight - 4][i] === 2) {
             //you have died
-            alert("You Died.");
+            if (linesClearedScore > 80) {
+                //good babies go here
+                goodBabies.push(firstBaby);
+            }
+            if (numberOfRuns > 100) {
+                alert("5 runs over");
+            }
+            else {
+                linesClearedScore = 0;
+                setupBoard();
+            }
         }
     }
 }
@@ -436,7 +465,7 @@ function allTheWayDown() {
     haveYouDied();
     goGoGravity();
     // FRIENDthinking();
-    setTimeout(FRIENDthinking, 500);
+    setTimeout(FRIENDthinking, 10);
 }
 function rotatePiece(tetronomino, clockwise) {
     //get reference position of anchor
