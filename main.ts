@@ -13,10 +13,15 @@ let currentPiece: tetronomino;
 let pieceRotationState: number = 0;
 let linesClearedScore: number = 0;
 let speedOfGravity: number = 800;
+let newPiece: tetronomino;
 let holdingPiece: tetronomino;
 let newGame: boolean = true;
 let pause: boolean = false;
 let gameOver: boolean = false;
+
+const jsonfile = require("jsonfile");
+
+const file = "data.json";
 
 class genes {
   pointsGene: number;
@@ -279,186 +284,186 @@ function maxLeft(gameBoardAI) {
 function FRIENDthinking() {
   if (gameOver === true) {
   } else {
-  //edgeHit would be a variable that helps us determine if the edge has been hit
-  //to get a limit for moveRight/moveLeft
-  let edgeHit: boolean = false;
-  let rightMovesAI: number = 0;
-  const maximumRight: number = maxRight(gameBoard);
-  const maximumLeft: number = maxLeft(gameBoard);
-  let resultDecisionsAI: aiGameBoard[] = [];
-  for (let k = 1; k < maximumLeft; k++) {
-    let aiBoard = new aiGameBoardV2(gameBoard);
-    aiBoard.right = false;
-    aiBoard.id = k;
-    aiBoard.rotate = 0;
-    aiBoard.board = moveLeftAI(k, aiBoard.board);
-    aiBoard.board = allTheWayDownAI(aiBoard.board);
-    // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
-    resultDecisionsAI.push(aiBoard);
-  }
-
-  for (let k = 0; k < maximumRight; k++) {
-    let aiBoard = new aiGameBoardV2(gameBoard);
-    aiBoard.right = true;
-    aiBoard.id = k;
-    aiBoard.rotate = 0;
-    aiBoard.board = moveRightAI(k, aiBoard.board);
-    aiBoard.board = allTheWayDownAI(aiBoard.board);
-    // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
-    resultDecisionsAI.push(aiBoard);
-  }
-  //for each rotation, we need to recalculate maximumRight and maximum Left
-  //maximumLeft and Right can recalculate based on the board passed into them
-  //rotate, pass resultant board into maximumRIght/Left, get a constant
-  //and use that constant to loop through
-  let firstRotateBoardR: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
-  firstRotateBoardR.board = rotatePieceAI(
-    firstRotateBoardR.board,
-    currentPiece,
-    1
-  );
-  const maxRightR1: number = maxRight(firstRotateBoardR.board);
-  for (let k = 0; k < maxRightR1; k++) {
-    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(firstRotateBoardR.board);
-    aiBoard.right = true;
-    aiBoard.id = k;
-    aiBoard.rotate = 1;
-    aiBoard.board = moveRightAI(k, aiBoard.board);
-    aiBoard.board = allTheWayDownAI(aiBoard.board);
-    resultDecisionsAI.push(aiBoard);
-  }
-  let secondRotateBoardR: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
-  secondRotateBoardR.board = rotatePieceAI(
-    secondRotateBoardR.board,
-    currentPiece,
-    2
-  );
-  const maxRightR2: number = maxRight(secondRotateBoardR.board);
-  for (let k = 0; k < maxRightR2; k++) {
-    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(secondRotateBoardR.board);
-    aiBoard.right = true;
-    aiBoard.id = k;
-    aiBoard.rotate = 2;
-    aiBoard.board = moveRightAI(k, aiBoard.board);
-    aiBoard.board = allTheWayDownAI(aiBoard.board);
-    resultDecisionsAI.push(aiBoard);
-  }
-  let thirdRotateBoardR: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
-  thirdRotateBoardR.board = rotatePieceAI(
-    thirdRotateBoardR.board,
-    currentPiece,
-    3
-  );
-  const maxRightR3: number = maxRight(thirdRotateBoardR.board);
-  for (let k = 0; k < maxRightR3; k++) {
-    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(thirdRotateBoardR.board);
-    aiBoard.right = true;
-    aiBoard.id = k;
-    aiBoard.rotate = 3;
-    aiBoard.board = moveRightAI(k, aiBoard.board);
-    aiBoard.board = allTheWayDownAI(aiBoard.board);
-    resultDecisionsAI.push(aiBoard);
-  }
-  let firstRotateBoardL: aiGameBoardV2 = new aiGameBoardV2(
-    firstRotateBoardR.board
-  );
-  // firstRotateBoardL.board = rotatePieceAI(
-  //   firstRotateBoardL.board,
-  //   currentPiece,
-  //   1
-  // );
-  const maxLeftR1: number = maxLeft(firstRotateBoardL.board);
-  for (let k = 0; k < maxLeftR1; k++) {
-    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(firstRotateBoardL.board);
-    aiBoard.right = false;
-    aiBoard.id = k;
-    aiBoard.rotate = 1;
-    aiBoard.board = moveLeftAI(k, aiBoard.board);
-    aiBoard.board = allTheWayDownAI(aiBoard.board);
-    resultDecisionsAI.push(aiBoard);
-  }
-  let secondRotateBoardL: aiGameBoardV2 = new aiGameBoardV2(
-    secondRotateBoardR.board
-  );
-  // secondRotateBoardL.board = rotatePieceAI(
-  //   secondRotateBoardL.board,
-  //   currentPiece,
-  //   2
-  // );
-  const maxLeftR2: number = maxLeft(secondRotateBoardL.board);
-  for (let k = 0; k < maxLeftR2; k++) {
-    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(secondRotateBoardL.board);
-    aiBoard.right = false;
-    aiBoard.id = k;
-    aiBoard.rotate = 2;
-    aiBoard.board = moveLeftAI(k, aiBoard.board);
-    aiBoard.board = allTheWayDownAI(aiBoard.board);
-    resultDecisionsAI.push(aiBoard);
-  }
-  let thirdRotateBoardL: aiGameBoardV2 = new aiGameBoardV2(
-    thirdRotateBoardR.board
-  );
-  // thirdRotateBoardL.board = rotatePieceAI(
-  //   thirdRotateBoardL.board,
-  //   currentPiece,
-  //   3
-  // );
-  const maxLeftR3: number = maxLeft(thirdRotateBoardL.board);
-  for (let k = 0; k < maxLeftR3; k++) {
-    let aiBoard: aiGameBoardV2 = new aiGameBoardV2(thirdRotateBoardL.board);
-    aiBoard.right = false;
-    aiBoard.id = k;
-    aiBoard.rotate = 3;
-    aiBoard.board = moveLeftAI(k, aiBoard.board);
-    aiBoard.board = allTheWayDownAI(aiBoard.board);
-    resultDecisionsAI.push(aiBoard);
-  }
-
-  for (let k = 0; k < resultDecisionsAI.length; k++) {
-    examineBoard(resultDecisionsAI[k], goodBaby);
-  }
-  let highestScore: number = 0;
-  let highestScoreID: number = 0;
-  let highestScoreRight: boolean = true;
-  let highestScoreRotate: number = 0;
-  for (let k = 0; k < resultDecisionsAI.length; k++) {
-    if (resultDecisionsAI[k].points > highestScore) {
-      highestScore = resultDecisionsAI[k].points;
-      highestScoreID = resultDecisionsAI[k].id;
-      highestScoreRight = resultDecisionsAI[k].right;
-      highestScoreRotate = resultDecisionsAI[k].rotate;
+    //edgeHit would be a variable that helps us determine if the edge has been hit
+    //to get a limit for moveRight/moveLeft
+    let edgeHit: boolean = false;
+    let rightMovesAI: number = 0;
+    const maximumRight: number = maxRight(gameBoard);
+    const maximumLeft: number = maxLeft(gameBoard);
+    let resultDecisionsAI: aiGameBoard[] = [];
+    for (let k = 1; k < maximumLeft; k++) {
+      let aiBoard = new aiGameBoardV2(gameBoard);
+      aiBoard.right = false;
+      aiBoard.id = k;
+      aiBoard.rotate = 0;
+      aiBoard.board = moveLeftAI(k, aiBoard.board);
+      aiBoard.board = allTheWayDownAI(aiBoard.board);
+      // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
+      resultDecisionsAI.push(aiBoard);
     }
-  }
-  let direction: string = "none";
-  if (highestScoreRight === true) {
-    direction = "right";
-  } else {
-    direction = "left";
-  }
-  // console.log(
-  //   "Rotate: " +
-  //     highestScoreRotate +
-  //     " Move " +
-  //     direction +
-  //     " " +
-  //     highestScoreID
-  // );
-  function FRIENDmove() {
-    for (let i = 0; i < highestScoreRotate; i++) {
-      rotatePiece(currentPiece, true);
+
+    for (let k = 0; k < maximumRight; k++) {
+      let aiBoard = new aiGameBoardV2(gameBoard);
+      aiBoard.right = true;
+      aiBoard.id = k;
+      aiBoard.rotate = 0;
+      aiBoard.board = moveRightAI(k, aiBoard.board);
+      aiBoard.board = allTheWayDownAI(aiBoard.board);
+      // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
+      resultDecisionsAI.push(aiBoard);
     }
+    //for each rotation, we need to recalculate maximumRight and maximum Left
+    //maximumLeft and Right can recalculate based on the board passed into them
+    //rotate, pass resultant board into maximumRIght/Left, get a constant
+    //and use that constant to loop through
+    let firstRotateBoardR: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
+    firstRotateBoardR.board = rotatePieceAI(
+      firstRotateBoardR.board,
+      currentPiece,
+      1
+    );
+    const maxRightR1: number = maxRight(firstRotateBoardR.board);
+    for (let k = 0; k < maxRightR1; k++) {
+      let aiBoard: aiGameBoardV2 = new aiGameBoardV2(firstRotateBoardR.board);
+      aiBoard.right = true;
+      aiBoard.id = k;
+      aiBoard.rotate = 1;
+      aiBoard.board = moveRightAI(k, aiBoard.board);
+      aiBoard.board = allTheWayDownAI(aiBoard.board);
+      resultDecisionsAI.push(aiBoard);
+    }
+    let secondRotateBoardR: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
+    secondRotateBoardR.board = rotatePieceAI(
+      secondRotateBoardR.board,
+      currentPiece,
+      2
+    );
+    const maxRightR2: number = maxRight(secondRotateBoardR.board);
+    for (let k = 0; k < maxRightR2; k++) {
+      let aiBoard: aiGameBoardV2 = new aiGameBoardV2(secondRotateBoardR.board);
+      aiBoard.right = true;
+      aiBoard.id = k;
+      aiBoard.rotate = 2;
+      aiBoard.board = moveRightAI(k, aiBoard.board);
+      aiBoard.board = allTheWayDownAI(aiBoard.board);
+      resultDecisionsAI.push(aiBoard);
+    }
+    let thirdRotateBoardR: aiGameBoardV2 = new aiGameBoardV2(gameBoard);
+    thirdRotateBoardR.board = rotatePieceAI(
+      thirdRotateBoardR.board,
+      currentPiece,
+      3
+    );
+    const maxRightR3: number = maxRight(thirdRotateBoardR.board);
+    for (let k = 0; k < maxRightR3; k++) {
+      let aiBoard: aiGameBoardV2 = new aiGameBoardV2(thirdRotateBoardR.board);
+      aiBoard.right = true;
+      aiBoard.id = k;
+      aiBoard.rotate = 3;
+      aiBoard.board = moveRightAI(k, aiBoard.board);
+      aiBoard.board = allTheWayDownAI(aiBoard.board);
+      resultDecisionsAI.push(aiBoard);
+    }
+    let firstRotateBoardL: aiGameBoardV2 = new aiGameBoardV2(
+      firstRotateBoardR.board
+    );
+    // firstRotateBoardL.board = rotatePieceAI(
+    //   firstRotateBoardL.board,
+    //   currentPiece,
+    //   1
+    // );
+    const maxLeftR1: number = maxLeft(firstRotateBoardL.board);
+    for (let k = 0; k < maxLeftR1; k++) {
+      let aiBoard: aiGameBoardV2 = new aiGameBoardV2(firstRotateBoardL.board);
+      aiBoard.right = false;
+      aiBoard.id = k;
+      aiBoard.rotate = 1;
+      aiBoard.board = moveLeftAI(k, aiBoard.board);
+      aiBoard.board = allTheWayDownAI(aiBoard.board);
+      resultDecisionsAI.push(aiBoard);
+    }
+    let secondRotateBoardL: aiGameBoardV2 = new aiGameBoardV2(
+      secondRotateBoardR.board
+    );
+    // secondRotateBoardL.board = rotatePieceAI(
+    //   secondRotateBoardL.board,
+    //   currentPiece,
+    //   2
+    // );
+    const maxLeftR2: number = maxLeft(secondRotateBoardL.board);
+    for (let k = 0; k < maxLeftR2; k++) {
+      let aiBoard: aiGameBoardV2 = new aiGameBoardV2(secondRotateBoardL.board);
+      aiBoard.right = false;
+      aiBoard.id = k;
+      aiBoard.rotate = 2;
+      aiBoard.board = moveLeftAI(k, aiBoard.board);
+      aiBoard.board = allTheWayDownAI(aiBoard.board);
+      resultDecisionsAI.push(aiBoard);
+    }
+    let thirdRotateBoardL: aiGameBoardV2 = new aiGameBoardV2(
+      thirdRotateBoardR.board
+    );
+    // thirdRotateBoardL.board = rotatePieceAI(
+    //   thirdRotateBoardL.board,
+    //   currentPiece,
+    //   3
+    // );
+    const maxLeftR3: number = maxLeft(thirdRotateBoardL.board);
+    for (let k = 0; k < maxLeftR3; k++) {
+      let aiBoard: aiGameBoardV2 = new aiGameBoardV2(thirdRotateBoardL.board);
+      aiBoard.right = false;
+      aiBoard.id = k;
+      aiBoard.rotate = 3;
+      aiBoard.board = moveLeftAI(k, aiBoard.board);
+      aiBoard.board = allTheWayDownAI(aiBoard.board);
+      resultDecisionsAI.push(aiBoard);
+    }
+
+    for (let k = 0; k < resultDecisionsAI.length; k++) {
+      examineBoard(resultDecisionsAI[k], goodBaby);
+    }
+    let highestScore: number = 0;
+    let highestScoreID: number = 0;
+    let highestScoreRight: boolean = true;
+    let highestScoreRotate: number = 0;
+    for (let k = 0; k < resultDecisionsAI.length; k++) {
+      if (resultDecisionsAI[k].points > highestScore) {
+        highestScore = resultDecisionsAI[k].points;
+        highestScoreID = resultDecisionsAI[k].id;
+        highestScoreRight = resultDecisionsAI[k].right;
+        highestScoreRotate = resultDecisionsAI[k].rotate;
+      }
+    }
+    let direction: string = "none";
     if (highestScoreRight === true) {
-      for (let i = 0; i < highestScoreID; i++) {
-        moveRight();
-      }
+      direction = "right";
     } else {
-      for (let i = 0; i < highestScoreID; i++) {
-        moveLeft();
-      }
+      direction = "left";
     }
-    allTheWayDown();
-  }
-  FRIENDmove();
+    // console.log(
+    //   "Rotate: " +
+    //     highestScoreRotate +
+    //     " Move " +
+    //     direction +
+    //     " " +
+    //     highestScoreID
+    // );
+    function FRIENDmove() {
+      for (let i = 0; i < highestScoreRotate; i++) {
+        rotatePiece(currentPiece, true);
+      }
+      if (highestScoreRight === true) {
+        for (let i = 0; i < highestScoreID; i++) {
+          moveRight();
+        }
+      } else {
+        for (let i = 0; i < highestScoreID; i++) {
+          moveLeft();
+        }
+      }
+      allTheWayDown();
+    }
+    FRIENDmove();
   }
 }
 
@@ -606,8 +611,6 @@ function haveYouDiedAI() {
 }
 */
 
-
-
 let firstBaby = new individual();
 let numberOfRuns = 0;
 let goodBabies: individual[] = [];
@@ -636,6 +639,7 @@ function pieceL() {
     [[1, 1, 4, 0], [0, 0, 1, 0]]
   ];
 }
+let pieceTemplateL = new pieceL();
 function pieceJ() {
   this.template = [
     [[0, 4, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0]],
@@ -644,7 +648,7 @@ function pieceJ() {
     [[0, 0, 4, 0], [1, 1, 1, 0]]
   ];
 }
-
+let pieceTemplateJ = new pieceJ();
 function pieceO() {
   this.template = [
     [[0, 4, 1, 0], [0, 1, 1, 0]],
@@ -653,7 +657,7 @@ function pieceO() {
     [[0, 4, 1, 0], [0, 1, 1, 0]]
   ];
 }
-
+let pieceTemplateO = new pieceO();
 function pieceZ() {
   this.template = [
     [[0, 4, 1, 0], [1, 1, 0, 0]],
@@ -662,7 +666,7 @@ function pieceZ() {
     [[0, 4, 0, 0], [0, 1, 1, 0], [0, 0, 1, 0]]
   ];
 }
-
+let pieceTemplateZ = new pieceZ();
 function pieceS() {
   this.template = [
     [[0, 1, 4, 0], [0, 0, 1, 1]],
@@ -671,7 +675,7 @@ function pieceS() {
     [[0, 0, 4, 0], [0, 1, 1, 0], [0, 1, 0, 0]]
   ];
 }
-
+let pieceTemplateS = new pieceS();
 function pieceT() {
   this.template = [
     [[0, 1, 4, 1], [0, 0, 1, 0]],
@@ -680,7 +684,7 @@ function pieceT() {
     [[0, 0, 4, 0], [0, 1, 1, 0], [0, 0, 1, 0]]
   ];
 }
-
+let pieceTemplateT = new pieceT();
 function pieceI() {
   this.template = [
     [[0, 4, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
@@ -689,7 +693,7 @@ function pieceI() {
     [[4, 1, 1, 1], [0, 0, 0, 0]]
   ];
 }
-
+let pieceTemplateI = new pieceI();
 function coordinates(x: number, y: number) {
   let xCoordinate: string = x.toString();
   let yCoordinate: string = y.toString();
@@ -807,9 +811,19 @@ function haveYouDied() {
         goodBabies.push(firstBaby);
         console.log("good baby: " + linesClearedScore);
       }
-      if (numberOfRuns > 10) {
+      if (numberOfRuns > 100) {
         gameOver = true;
         gameBoard = [];
+        //write the stuff to a json file here
+        jsonfile.readFile(file, (err, obj) => {
+          if (err) {
+            console.log(err);
+          }
+          obj["population"] = goodBabies;
+          jsonfile.writeFile(file, obj, err => {
+            console.log(err);
+          });
+        });
         return;
       } else {
         linesClearedScore = 0;
@@ -1219,31 +1233,30 @@ function spawnNewPiece() {
   //encapsulate this later in a function that randomly creates new pieces and spawns them.
   if (newGame) {
     let randomNum: number = Math.floor(Math.random() * 7 + 1);
-    let newPiece: tetronomino = new pieceL();
     switch (randomNum) {
       case 1:
-        newPiece = new pieceJ();
+        newPiece = pieceTemplateJ;
         break;
       case 2:
-        newPiece = new pieceL();
+        newPiece = pieceTemplateL;
         break;
       case 3:
-        newPiece = new pieceO();
+        newPiece = pieceTemplateO;
         break;
       case 4:
-        newPiece = new pieceS();
+        newPiece = pieceTemplateS;
         break;
       case 5:
-        newPiece = new pieceZ();
+        newPiece = pieceTemplateZ;
         break;
       case 6:
-        newPiece = new pieceT();
+        newPiece = pieceTemplateT;
         break;
       case 7:
-        newPiece = new pieceI();
+        newPiece = pieceTemplateI;
         break;
       default:
-        newPiece = new pieceT();
+        newPiece = pieceTemplateT;
         break;
     }
     holdingPiece = newPiece;
@@ -1253,31 +1266,30 @@ function spawnNewPiece() {
   currentPiece = holdingPiece;
 
   let randomNum: number = Math.floor(Math.random() * 7 + 1);
-  let newPiece: tetronomino = new pieceL();
   switch (randomNum) {
     case 1:
-      newPiece = new pieceJ();
+      newPiece = pieceTemplateJ;
       break;
     case 2:
-      newPiece = new pieceL();
+      newPiece = pieceTemplateL;
       break;
     case 3:
-      newPiece = new pieceO();
+      newPiece = pieceTemplateO;
       break;
     case 4:
-      newPiece = new pieceS();
+      newPiece = pieceTemplateS;
       break;
     case 5:
-      newPiece = new pieceZ();
+      newPiece = pieceTemplateZ;
       break;
     case 6:
-      newPiece = new pieceT();
+      newPiece = pieceTemplateT;
       break;
     case 7:
-      newPiece = new pieceI();
+      newPiece = pieceTemplateI;
       break;
     default:
-      newPiece = new pieceT();
+      newPiece = pieceTemplateT;
       break;
   }
   holdingPiece = newPiece;
