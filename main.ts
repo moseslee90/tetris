@@ -1,6 +1,5 @@
 let gameBoard: number[][];
 let holdingBoardArray: number[][];
-let gameBoardDivs: NodeList = document.querySelectorAll("#game-board div");
 let boardHeight: number = 25;
 let boardWidth: number = 12;
 let holdingHeight: number = 4;
@@ -8,8 +7,7 @@ let holdingWidth: number = 4;
 let spawnX: number = 4;
 let spawnY: number = boardHeight - 4;
 let gravity;
-let gameBoardHTML: HTMLElement = document.getElementById("game-board");
-let holdingArea: HTMLElement = document.getElementById("holding-area");
+
 // let pieceRotationState: number = 4;
 let currentPiece: tetronomino;
 let pieceRotationState: number = 0;
@@ -19,9 +17,6 @@ let holdingPiece: tetronomino;
 let newGame: boolean = true;
 let pause: boolean = false;
 let gameOver: boolean = false;
-
-let scoreHTML: HTMLElement = document.querySelector(".score-p");
-scoreHTML.innerText = linesClearedScore.toString();
 
 let firstBaby = new individual();
 let numberOfRuns = 0;
@@ -119,37 +114,16 @@ function coordinatesHolding(x: number, y: number) {
   return coordinates;
 }
 
-function boxClicked() {
-  let element: HTMLDivElement = this;
-  let x: number = parseInt(element.getAttribute("data-x"));
-  let y: number = parseInt(element.getAttribute("data-y"));
-  console.log("box clicked at " + element.getAttribute("id"));
-}
-
 function setupBoard() {
   numberOfRuns++;
   firstBaby = new individual();
   firstBaby.randomGenes();
   let gridSquareDimension = 30;
-  gameBoardHTML.style.width = gridSquareDimension * boardWidth + "px";
-  gameBoardHTML.style.height = gridSquareDimension * boardHeight + "px";
   gameBoard = [];
-  holdingArea.innerHTML = "";
-  gameBoardHTML.innerHTML = "";
   //creates board from bottom right to top left,
   for (let i = boardHeight - 1; i > -1; i--) {
     let array2d: number[] = [];
     for (let j = 0; j < boardWidth; j++) {
-      let element = document.createElement("div");
-      let paragraph = document.createElement("p");
-      element.setAttribute("id", j.toString() + "-" + i.toString());
-      element.setAttribute("data-x", j.toString());
-      element.setAttribute("data-y", i.toString());
-      element.setAttribute("data-state", "0");
-      element.setAttribute("class", "box");
-      element.appendChild(paragraph);
-      element.addEventListener("click", boxClicked);
-      gameBoardHTML.appendChild(element);
       //make borders
       if (i === boardHeight - 1) {
         array2d.push(2);
@@ -161,7 +135,6 @@ function setupBoard() {
       }
       if (i === 0 || j === 0 || j === boardWidth - 1) {
         //add html class
-        element.classList.add("border");
       }
     }
     gameBoard.push(array2d);
@@ -169,21 +142,10 @@ function setupBoard() {
 
   // holding area code to be finalised
 
-  holdingArea.style.width = gridSquareDimension * holdingWidth + "px";
-  holdingArea.style.height = gridSquareDimension * holdingHeight + "px";
   holdingBoardArray = [];
   for (let i = holdingHeight - 1; i > -1; i--) {
     let array2d: number[] = [];
     for (let j = 0; j < holdingWidth; j++) {
-      let element = document.createElement("div");
-      element.setAttribute("id", j.toString() + "h" + i.toString());
-      element.setAttribute("data-x", j.toString());
-      element.setAttribute("data-y", i.toString());
-      element.setAttribute("data-state", "0");
-      element.setAttribute("class", "box");
-      element.addEventListener("click", boxClicked);
-      holdingArea.appendChild(element);
-
       array2d.push(0);
     }
     holdingBoardArray.push(array2d);
@@ -214,10 +176,6 @@ function generateNewPiece(
         let yCoordinate: number = positionY + i;
         let xCoordinate: number = positionX + j;
         gameBoard[yCoordinate][xCoordinate] = template[i][j];
-        let cellHTML: HTMLElement = document.getElementById(
-          coordinates(xCoordinate, yCoordinate)
-        );
-        cellHTML.classList.add("moving-piece");
         //   element.classList.add("moving-piece");
       }
     }
@@ -228,11 +186,6 @@ function clearHoldingArea() {
   for (let i = 0; i < holdingWidth; i++) {
     for (let j = 0; j < holdingHeight; j++) {
       holdingBoardArray[j][i] = 0;
-      let cellHTML: HTMLElement = document.getElementById(
-        coordinatesHolding(i, j)
-      );
-      cellHTML.classList.remove("moving-piece");
-      //   element.classList.add("moving-piece");
     }
   }
 }
@@ -250,11 +203,6 @@ function generateNewPieceHolding(
         let yCoordinate: number = positionY + i;
         let xCoordinate: number = positionX + j;
         holdingBoardArray[yCoordinate][xCoordinate] = template[i][j];
-        let cellHTML: HTMLElement = document.getElementById(
-          coordinatesHolding(xCoordinate, yCoordinate)
-        );
-        cellHTML.classList.add("moving-piece");
-        //   element.classList.add("moving-piece");
       }
     }
   }
@@ -273,7 +221,6 @@ function haveYouDied() {
         gameOver = true;
         clearInterval(gravity);
         gameBoard = [];
-        gameBoardHTML.innerHTML = "";
         alert("1000 runs over");
       } else {
         linesClearedScore = 0;
@@ -303,11 +250,6 @@ function moveRight() {
           gameBoard[j].splice(i, 1, 0);
           gameBoard[j].splice(i + 1, 1, 1);
         }
-        //code to manipulate HTML
-        let cell: HTMLElement = document.getElementById(coordinates(i, j));
-        cell.classList.remove("moving-piece");
-        let cell2: HTMLElement = document.getElementById(coordinates(i + 1, j));
-        cell2.classList.add("moving-piece");
       }
     }
   }
@@ -333,11 +275,6 @@ function moveLeft() {
           gameBoard[j].splice(i, 1, 0);
           gameBoard[j].splice(i - 1, 1, 1);
         }
-        //code to manipulate HTML
-        let cell: HTMLElement = document.getElementById(coordinates(i, j));
-        cell.classList.remove("moving-piece");
-        let cell2: HTMLElement = document.getElementById(coordinates(i - 1, j));
-        cell2.classList.add("moving-piece");
       }
     }
   }
@@ -362,13 +299,10 @@ function checkLineFilled() {
     if (rowFilled === boardWidth - 2) {
       //deleteRow
       linesClearedScore++;
-      scoreHTML.innerText = linesClearedScore.toString();
       for (let j = boardWidth - 2; j > 0; j--) {
         //update array: delete that row in the array
         gameBoard[i].splice(j, 1, 0);
         //update html: delete that row in the html
-        let cell: HTMLElement = document.getElementById(coordinates(j, i));
-        cell.classList.remove("fixed-piece");
       }
       //up to this point, the row has been deleted, now we need to move the pieces
       //which have a value of 2 down
@@ -384,15 +318,6 @@ function checkLineFilled() {
             gameBoard[k].splice(l, 1, 0);
             gameBoard[k - 1].splice(l, 1, 2);
             //remove the fixed piece property of the cell's previous occupied cell
-            let cellWas: HTMLElement = document.getElementById(
-              coordinates(l, k)
-            );
-            cellWas.classList.remove("fixed-piece");
-            //add that fixed piece property to the new cell's home
-            let cellIs: HTMLElement = document.getElementById(
-              coordinates(l, k - 1)
-            );
-            cellIs.classList.add("fixed-piece");
           }
         }
       }
@@ -424,9 +349,6 @@ function moveDown() {
         for (let j = boardWidth - 2; j > 0; j--) {
           if (gameBoard[i][j] === 1 || gameBoard[i][j] === 4) {
             gameBoard[i].splice(j, 1, 2);
-            let cell: HTMLElement = document.getElementById(coordinates(j, i));
-            cell.classList.remove("moving-piece");
-            cell.classList.add("fixed-piece");
           }
         }
       }
@@ -460,10 +382,6 @@ function moveDown() {
           gameBoard[i - 1].splice(j, 1, 1);
         }
         //code to manipulate HTML
-        let cell: HTMLElement = document.getElementById(coordinates(j, i));
-        cell.classList.remove("moving-piece");
-        let cell2: HTMLElement = document.getElementById(coordinates(j, i - 1));
-        cell2.classList.add("moving-piece");
       }
     }
   }
@@ -508,13 +426,6 @@ function allTheWayDown() {
           gameBoard[i - minRowsToFloor + 1].splice(j, 1, 2);
         }
         //code to manipulate HTML
-        let cell: HTMLElement = document.getElementById(coordinates(j, i));
-        cell.classList.remove("moving-piece");
-        let cell2: HTMLElement = document.getElementById(
-          coordinates(j, i - minRowsToFloor + 1)
-        );
-        //turn piece into fixed piece
-        cell2.classList.add("fixed-piece");
       }
     }
   }
@@ -524,8 +435,7 @@ function allTheWayDown() {
   //kill game here if resultant board has a piece at the ceiling
   haveYouDied();
   goGoGravity();
-  // FRIENDthinking();
-  setTimeout(FRIENDthinking, 1);
+  FRIENDthinking();
 }
 
 function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
@@ -557,17 +467,6 @@ function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
   }
   //prepare next template
   let nextTemplate: number[][] = tetronomino.template[pieceRotationState];
-  //may not need to get reference for nextTemplate's anchor
-  let anchorNextTemplatePosX: number;
-  let anchorNextTemplatePosY: number;
-  for (let i = 0; i < nextTemplate.length; i++) {
-    for (let j = 0; j < nextTemplate[i].length; j++) {
-      if (nextTemplate[i][j] === 4) {
-        anchorNextTemplatePosY = i;
-        anchorNextTemplatePosX = j;
-      }
-    }
-  }
   //need to ensure rotatePiece function checks board for collisions and adjusts replacement of piece template accordingly to avoid 'phasing' of blocks into walls and floor and other pieces
 
   //loop through entire board to find anchor of current piece
@@ -698,10 +597,6 @@ function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
           for (let l = 1; l < boardHeight; l++) {
             if (gameBoard[l][k] === 1 || gameBoard[l][k] === 4) {
               gameBoard[l].splice(k, 1, 0);
-              let cell: HTMLElement = document.getElementById(
-                coordinates(k, l)
-              );
-              cell.classList.remove("moving-piece");
             }
           }
         }
@@ -720,8 +615,7 @@ function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
 
 //gravity in intervals
 function goGoGravity() {
-  let speedFactor = Math.floor(linesClearedScore / 10);
-  speedOfGravity = 800 - speedFactor * 100;
+  speedOfGravity = 800;
   if (speedOfGravity < 200) {
     speedOfGravity = 150;
   }
@@ -811,32 +705,32 @@ function spawnNewPiece() {
 spawnNewPiece();
 goGoGravity();
 
-function keydownEvent(event) {
-  var x = event.keyCode || event.which;
-  console.log(x + " was pressed");
-  if (x === 65) {
-    moveLeft();
-  }
-  if (x === 68) {
-    moveRight();
-  }
-  if (x === 83) {
-    moveDown();
-  }
-  if (x === 221) {
-    rotatePiece(currentPiece, true);
-  }
-  if (x === 219) {
-    rotatePiece(currentPiece, false);
-  }
-  if (x === 80) {
-    allTheWayDown();
-  }
-  if (x === 32) {
-    pauseGame();
-  }
-}
-document.onkeydown = keydownEvent;
+// function keydownEvent(event) {
+//   var x = event.keyCode || event.which;
+//   console.log(x + " was pressed");
+//   if (x === 65) {
+//     moveLeft();
+//   }
+//   if (x === 68) {
+//     moveRight();
+//   }
+//   if (x === 83) {
+//     moveDown();
+//   }
+//   if (x === 221) {
+//     rotatePiece(currentPiece, true);
+//   }
+//   if (x === 219) {
+//     rotatePiece(currentPiece, false);
+//   }
+//   if (x === 80) {
+//     allTheWayDown();
+//   }
+//   if (x === 32) {
+//     pauseGame();
+//   }
+// }
+// document.onkeydown = keydownEvent;
 
 //implement this as game clock to call functions
 
