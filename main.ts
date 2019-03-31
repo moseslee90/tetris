@@ -40,7 +40,7 @@ goodBaby.genes.oneRowFilledGene = 10;
 goodBaby.genes.twoRowsFilledGene = 25;
 goodBaby.genes.threeRowsFilledGene = 45;
 goodBaby.genes.fourRowsFilledGene = 80;
-goodBaby.genes.heightPenaltyGene = 5;
+goodBaby.genes.heightPenaltyGene = 2.5;
 goodBaby.genes.consecutiveRowGene = 1.3;
 goodBaby.genes.borderGene = 1.3;
 
@@ -134,7 +134,7 @@ function boxClicked() {
   let element: HTMLDivElement = this;
   let x: number = parseInt(element.getAttribute("data-x"));
   let y: number = parseInt(element.getAttribute("data-y"));
-  console.log("box clicked at " + element.getAttribute("id"));
+  // console.log("box clicked at " + element.getAttribute("id"));
 }
 
 function setupBoard() {
@@ -585,7 +585,7 @@ function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
     for (let j = 1; j < boardHeight; j++) {
       //finds anchor which is identified as 4
       if (gameBoard[j][i] === 4) {
-        console.log("anchor found at " + i + "-" + j);
+        // console.log("anchor found at " + i + "-" + j);
         let anchorX = -anchorTemplatePosX;
         let anchorY = -anchorTemplatePosY;
         //xCoordinate and yCoordinate represent the location of the corner
@@ -623,7 +623,7 @@ function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
                   //if a value of 2 or 3 is found already present on the gameBoard
                   //at the location that we would like to place nextTemplate's
                   //1 or 4; collision found
-                  console.log("collision encountered in rotation");
+                  // console.log("collision encountered in rotation");
                   collision = true;
 
                   //find column of collision
@@ -750,29 +750,29 @@ function gameClock() {
   //this will handle our events that happen
   //at certain times in the game
   //increment our game time
-  // gameTime++;
-  // //reset clock to first sixtieth of the second
-  // if (gameTime === 60) {
-  //   gameTime = 0;
-  // }
-  // if (gameTime === 1 && pause === false) {
-  //   currentDecision = FRIENDthinking();
-  // }
-  // if (gameTime === 30 && pause === false) {
-  //   FRIENDmove(currentDecision);
-  // }
-  // // move piece down once every second
+  gameTime++;
+  //reset clock to first sixtieth of the second
+  if (gameTime === 60) {
+    gameTime = 0;
+  }
+  if (gameTime === 1 && pause === false) {
+    currentDecision = FRIENDthinking();
+  }
+  if (gameTime === 30 && pause === false) {
+    FRIENDmove(currentDecision);
+  }
+  // move piece down once every second
   // if (gameTime === 59 && pause === false) {
   //   moveDown();
   // }
   //add ai think, ai move
-  currentDecision = FRIENDthinking();
-  FRIENDmove(currentDecision);
+  // currentDecision = FRIENDthinking();
+  // FRIENDmove(currentDecision);
   //code to run to make everything happen instantly
 }
 function gameClockToggle() {
   if (gameClockToggleState === true) {
-    gameClockIntervalFunction = setInterval(gameClock, 1);
+    gameClockIntervalFunction = setInterval(gameClock, sixtiethOfASecondInMilliseconds);
     gameClockToggleState = false;
   } else {
     clearInterval(gameClockIntervalFunction);
