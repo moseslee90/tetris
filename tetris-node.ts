@@ -804,12 +804,13 @@ function haveYouDied() {
       //you have died
       if (linesClearedScore > 80) {
         //good babies go here
+        console.log("good baby found!");
         firstBaby.fitness = linesClearedScore;
         goodBabies.push(firstBaby);
       }
       if (numberOfRuns > 100) {
         gameOver = true;
-        alert("5 runs over");
+        console.log("10 runs over!")
         return;
       } else {
         linesClearedScore = 0;
@@ -1282,4 +1283,6 @@ function spawnNewPiece() {
 }
 
 //code below this initialises the game
+console.log("starting tetris-node.js");
 spawnNewPiece();
+gameClock();
