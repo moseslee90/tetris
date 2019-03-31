@@ -1,5 +1,6 @@
 var jsonFile = require("jsonfile");
 var file = "data.json";
+var goodPopulation = "population.json";
 var genes = /** @class */ (function () {
     function genes() {
     }
@@ -84,7 +85,7 @@ var aiGameBoardV2 = /** @class */ (function () {
     }
     return aiGameBoardV2;
 }());
-function FRIENDthinking() {
+function FRIENDthinking(baby) {
     var resultDecisionsAI = [];
     function examineBoard(aiGameBoardObject, baby) {
         var points = baby.genes.pointsGene;
@@ -446,7 +447,7 @@ function FRIENDthinking() {
         }
         // console.log(resultDecisionsAI);
         for (var k = 0; k < resultDecisionsAI.length; k++) {
-            examineBoard(resultDecisionsAI[k], firstBaby);
+            examineBoard(resultDecisionsAI[k], baby);
         }
         // console.log(resultDecisionsAI);
         var highestScore = 0;
@@ -474,20 +475,24 @@ function FRIENDthinking() {
     }
 }
 function FRIENDmove(decision) {
-    for (var i = 0; i < decision.rotations; i++) {
-        rotatePiece(currentPiece, true);
-    }
-    if (decision.direction === true) {
-        for (var i = 0; i < decision.moves; i++) {
-            moveRight();
-        }
+    if (gameOver === true) {
     }
     else {
-        for (var i = 0; i < decision.moves; i++) {
-            moveLeft();
+        for (var i = 0; i < decision.rotations; i++) {
+            rotatePiece(currentPiece, true);
         }
+        if (decision.direction === true) {
+            for (var i = 0; i < decision.moves; i++) {
+                moveRight();
+            }
+        }
+        else {
+            for (var i = 0; i < decision.moves; i++) {
+                moveLeft();
+            }
+        }
+        allTheWayDown();
     }
-    allTheWayDown();
 }
 function generateNewPieceAI(board, template, positionX, positionY) {
     //function generates a new piece based on the template given,
@@ -715,6 +720,7 @@ var speedOfGravity = 800;
 var holdingPiece;
 var newGame = true;
 var pause = false;
+var roundOver = false;
 var gameOver = false;
 var gameTime = 0;
 var gameClockToggleState = true;
@@ -806,8 +812,6 @@ function coordinatesHolding(x, y) {
 }
 function setupBoard() {
     numberOfRuns++;
-    firstBaby = new individual();
-    firstBaby.randomGenes();
     gameBoard = [];
     //creates board from bottom right to top left,
     for (var i = boardHeight - 1; i > -1; i--) {
@@ -837,7 +841,6 @@ function setupBoard() {
         holdingBoardArray.push(array2d);
     }
 }
-setupBoard();
 function generateNewPiece(template, positionX, positionY) {
     //function generates a new piece based on the template given,
     //at the specified location entered, with the position being the left corner of the template
@@ -882,6 +885,7 @@ function haveYouDied() {
     for (var i = 1; i < boardWidth - 2; i++) {
         if (gameBoard[boardHeight - 4][i] === 2) {
             //you have died
+            roundOver = true;
             if (linesClearedScore > 80) {
                 //good babies go here
                 console.log("good baby found! Fitness: " + linesClearedScore);
@@ -905,8 +909,8 @@ function haveYouDied() {
                 return;
             }
             else {
-                linesClearedScore = 0;
                 setupBoard();
+                linesClearedScore = 0;
                 return;
             }
         }
@@ -1284,12 +1288,12 @@ function pauseGame() {
         pause = true;
     }
 }
-function gameClock() {
-    while (gameOver === false) {
-        currentDecision = FRIENDthinking();
-        FRIENDmove(currentDecision);
-    }
-}
+// function gameClock() {
+//   while (gameOver === false) {
+//     currentDecision = FRIENDthinking();
+//     FRIENDmove(currentDecision);
+//   }
+// }
 function spawnNewPiece() {
     //encapsulate this later in a function that randomly creates new pieces and spawns them.
     if (newGame) {
@@ -1360,5 +1364,21 @@ function spawnNewPiece() {
 }
 //code below this initialises the game
 console.log("starting tetris-node.js");
-spawnNewPiece();
-gameClock();
+jsonFile.readFile(goodPopulation, function (err, obj) {
+    if (err) {
+        console.log(err);
+    }
+    setupBoard();
+    for (var i = 0; i < obj.population.length; i++) {
+        console.log("baby " + i);
+        linesClearedScore = 0;
+        var baby = obj.population[i];
+        firstBaby = baby;
+        spawnNewPiece();
+        while (roundOver === false) {
+            currentDecision = FRIENDthinking(baby);
+            FRIENDmove(currentDecision);
+        }
+        roundOver = false;
+    }
+});

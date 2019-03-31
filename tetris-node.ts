@@ -1,5 +1,6 @@
 const jsonFile = require("jsonfile");
 const file = "data.json";
+const goodPopulation = "population.json";
 class genes {
   pointsGene: number;
   heightPenaltyGene: number;
@@ -126,7 +127,7 @@ class aiGameBoardV2 {
   }
 }
 
-function FRIENDthinking() {
+function FRIENDthinking(baby: individual) {
   let resultDecisionsAI: aiGameBoard[] = [];
   function examineBoard(aiGameBoardObject: aiGameBoard, baby: individual) {
     let points: number = baby.genes.pointsGene;
@@ -618,7 +619,7 @@ function FRIENDthinking() {
 
     // console.log(resultDecisionsAI);
     for (let k = 0; k < resultDecisionsAI.length; k++) {
-      examineBoard(resultDecisionsAI[k], firstBaby);
+      examineBoard(resultDecisionsAI[k], baby);
     }
     // console.log(resultDecisionsAI);
     let highestScore: number = 0;
@@ -646,19 +647,23 @@ function FRIENDthinking() {
   }
 }
 function FRIENDmove(decision: decision) {
-  for (var i = 0; i < decision.rotations; i++) {
-    rotatePiece(currentPiece, true);
-  }
-  if (decision.direction === true) {
-    for (var i = 0; i < decision.moves; i++) {
-      moveRight();
-    }
+  if (gameOver === true) {
+    
   } else {
-    for (var i = 0; i < decision.moves; i++) {
-      moveLeft();
+    for (var i = 0; i < decision.rotations; i++) {
+      rotatePiece(currentPiece, true);
     }
+    if (decision.direction === true) {
+      for (var i = 0; i < decision.moves; i++) {
+        moveRight();
+      }
+    } else {
+      for (var i = 0; i < decision.moves; i++) {
+        moveLeft();
+      }
+    }
+    allTheWayDown();
   }
-  allTheWayDown();
 }
 function generateNewPieceAI(
   board: number[][],
@@ -880,7 +885,6 @@ function haveYouDiedAI() {
 }
 */
 
-
 let gameBoard: number[][];
 let holdingBoardArray: number[][];
 let boardHeight: number = 25;
@@ -899,6 +903,7 @@ let holdingPiece: tetronomino;
 let newGame: boolean = true;
 let pause: boolean = false;
 
+let roundOver: boolean = false;
 let gameOver: boolean = false;
 let gameTime: number = 0;
 let gameClockToggleState: boolean = true;
@@ -1010,10 +1015,6 @@ function coordinatesHolding(x: number, y: number) {
 
 function setupBoard() {
   numberOfRuns++;
-  firstBaby = new individual();
-  firstBaby.randomGenes();
-
-
   gameBoard = [];
 
   //creates board from bottom right to top left,
@@ -1029,7 +1030,6 @@ function setupBoard() {
       } else {
         array2d.push(0);
       }
-
     }
     gameBoard.push(array2d);
   }
@@ -1045,8 +1045,6 @@ function setupBoard() {
     holdingBoardArray.push(array2d);
   }
 }
-
-setupBoard();
 
 function generateNewPiece(
   template: number[][],
@@ -1105,6 +1103,7 @@ function haveYouDied() {
   for (let i = 1; i < boardWidth - 2; i++) {
     if (gameBoard[boardHeight - 4][i] === 2) {
       //you have died
+      roundOver = true;
       if (linesClearedScore > 80) {
         //good babies go here
         console.log("good baby found! Fitness: " + linesClearedScore);
@@ -1115,22 +1114,23 @@ function haveYouDied() {
         gameOver = true;
         console.log("100 runs over!");
         jsonFile.readFile(file, (err, obj) => {
-            if (err) {
-              console.log(err);
-            }
-            goodBabies.forEach(baby => {
-                obj.population.push(baby);
-            });
-            jsonFile.writeFile(file, obj, err => {
-              console.log(err);
-            });
+          if (err) {
+            console.log(err);
+          }
+          goodBabies.forEach(baby => {
+            obj.population.push(baby);
           });
+          jsonFile.writeFile(file, obj, err => {
+            console.log(err);
+          });
+        });
         return;
       } else {
-        linesClearedScore = 0;
         setupBoard();
+        linesClearedScore = 0;
         return;
       }
+
     }
   }
 }
@@ -1520,12 +1520,12 @@ function pauseGame() {
   }
 }
 
-function gameClock() {
-  while (gameOver === false) {
-    currentDecision = FRIENDthinking();
-    FRIENDmove(currentDecision);
-  }
-}
+// function gameClock() {
+//   while (gameOver === false) {
+//     currentDecision = FRIENDthinking();
+//     FRIENDmove(currentDecision);
+//   }
+// }
 
 function spawnNewPiece() {
   //encapsulate this later in a function that randomly creates new pieces and spawns them.
@@ -1599,5 +1599,33 @@ function spawnNewPiece() {
 
 //code below this initialises the game
 console.log("starting tetris-node.js");
-spawnNewPiece();
-gameClock();
+
+jsonFile.readFile(goodPopulation, (err, obj) => {
+  if (err) {
+    console.log(err);
+  }
+  setupBoard()
+  for (let i = 0; i < obj.population.length; i++) {
+    console.log("baby " + i);
+    linesClearedScore = 0;
+    const baby = obj.population[i];
+    firstBaby = baby;
+    spawnNewPiece();
+    while (roundOver === false) {
+      currentDecision = FRIENDthinking(baby);
+      FRIENDmove(currentDecision);
+    }
+    roundOver = false;
+  }
+  jsonFile.readFile(file, (err, obj) => {
+    if (err) {
+      console.log(err);
+    }
+    goodBabies.forEach(baby => {
+      obj.population.push(baby);
+    });
+    jsonFile.writeFile(file, obj, err => {
+      console.log(err);
+    });
+  });
+});
