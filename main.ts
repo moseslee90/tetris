@@ -18,7 +18,13 @@ let speedOfGravity: number = 800;
 let holdingPiece: tetronomino;
 let newGame: boolean = true;
 let pause: boolean = false;
+
 let gameOver: boolean = false;
+let gameTime: number = 0;
+let gameClockToggleState: boolean = true;
+let gameClockIntervalFunction;
+let sixtiethOfASecondInMilliseconds: number = 50 / 3;
+let currentDecision: decision;
 
 let scoreHTML: HTMLElement = document.querySelector(".score-p");
 scoreHTML.innerText = linesClearedScore.toString();
@@ -38,6 +44,12 @@ goodBaby.genes.fourRowsFilledGene = 70;
 goodBaby.genes.heightPenaltyGene = 1.5;
 goodBaby.genes.consecutiveRowGene = 1.3;
 goodBaby.genes.borderGene = 1.3;
+
+interface decision {
+  rotations: number;
+  direction: boolean;
+  moves: number;
+}
 
 interface tetronomino {
   template: number[][][];
@@ -269,12 +281,14 @@ function haveYouDied() {
         firstBaby.fitness = linesClearedScore;
         goodBabies.push(firstBaby);
       }
-      if (numberOfRuns > 1000) {
+      if (numberOfRuns > 100) {
         gameOver = true;
-        clearInterval(gravity);
-        gameBoard = [];
-        gameBoardHTML.innerHTML = "";
-        alert("1000 runs over");
+        // clearInterval(gravity);
+        // gameBoard = [];
+        // gameBoardHTML.innerHTML = "";
+        gameClockToggle();
+        alert("5 runs over");
+        return;
       } else {
         linesClearedScore = 0;
         setupBoard();
@@ -435,7 +449,7 @@ function moveDown() {
       checkLineFilled();
       //kill game here if resultant board has a piece at the ceiling
       haveYouDied();
-      goGoGravity();
+      // goGoGravity();
       return;
     }
   }
@@ -523,9 +537,7 @@ function allTheWayDown() {
   checkLineFilled();
   //kill game here if resultant board has a piece at the ceiling
   haveYouDied();
-  goGoGravity();
   // FRIENDthinking();
-  setTimeout(FRIENDthinking, 1);
 }
 
 function rotatePiece(tetronomino: tetronomino, clockwise: boolean) {
@@ -731,10 +743,42 @@ function goGoGravity() {
 function pauseGame() {
   if (pause === true) {
     pause = false;
-    goGoGravity();
   } else {
     pause = true;
-    clearInterval(gravity);
+  }
+}
+function gameClock() {
+  //function that will be called by a setInterval
+  //this will handle our events that happen
+  //at certain times in the game
+  //increment our game time
+  // gameTime++;
+  // //reset clock to first sixtieth of the second
+  // if (gameTime === 60) {
+  //   gameTime = 0;
+  // }
+  // if (gameTime === 1 && pause === false) {
+  //   currentDecision = FRIENDthinking();
+  // }
+  // if (gameTime === 30 && pause === false) {
+  //   FRIENDmove(currentDecision);
+  // }
+  // // move piece down once every second
+  // if (gameTime === 59 && pause === false) {
+  //   moveDown();
+  // }
+  //add ai think, ai move
+  currentDecision = FRIENDthinking();
+  FRIENDmove(currentDecision);
+  //code to run to make everything happen instantly
+}
+function gameClockToggle() {
+  if (gameClockToggleState === true) {
+    gameClockIntervalFunction = setInterval(gameClock, 1);
+    gameClockToggleState = false;
+  } else {
+    clearInterval(gameClockIntervalFunction);
+    gameClockToggleState = true;
   }
 }
 
@@ -807,9 +851,9 @@ function spawnNewPiece() {
   generateNewPieceHolding(holdingPiece.template[0], 0, 0);
   // code to generate a new piece at spawn point
 }
+
 //code below this initialises the game
 spawnNewPiece();
-goGoGravity();
 
 function keydownEvent(event) {
   var x = event.keyCode || event.which;
@@ -833,7 +877,7 @@ function keydownEvent(event) {
     allTheWayDown();
   }
   if (x === 32) {
-    pauseGame();
+    gameClockToggle();
   }
 }
 document.onkeydown = keydownEvent;
