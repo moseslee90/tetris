@@ -34,14 +34,13 @@ let numberOfRuns = 0;
 let goodBabies: individual[] = [];
 
 let goodBaby = new individual();
-goodBaby.randomGenes();
-goodBaby.genes.pointsGene = 2000;
+goodBaby.genes.pointsGene = 200000;
 goodBaby.genes.blankPocketGene = 20;
 goodBaby.genes.oneRowFilledGene = 10;
 goodBaby.genes.twoRowsFilledGene = 25;
 goodBaby.genes.threeRowsFilledGene = 45;
-goodBaby.genes.fourRowsFilledGene = 70;
-goodBaby.genes.heightPenaltyGene = 1.5;
+goodBaby.genes.fourRowsFilledGene = 80;
+goodBaby.genes.heightPenaltyGene = 5;
 goodBaby.genes.consecutiveRowGene = 1.3;
 goodBaby.genes.borderGene = 1.3;
 
@@ -281,7 +280,7 @@ function haveYouDied() {
         firstBaby.fitness = linesClearedScore;
         goodBabies.push(firstBaby);
       }
-      if (numberOfRuns > 100) {
+      if (numberOfRuns > 5) {
         gameOver = true;
         // clearInterval(gravity);
         // gameBoard = [];
@@ -508,7 +507,6 @@ function allTheWayDown() {
       }
     }
   }
-  clearInterval(gravity);
   //reset piece rotation state for the next piece
   pieceRotationState = 0;
   for (let i = 1; i < boardHeight; i++) {
