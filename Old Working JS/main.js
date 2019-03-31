@@ -23,20 +23,21 @@ var gameTime = 0;
 var gameClockToggleState = true;
 var gameClockIntervalFunction;
 var sixtiethOfASecondInMilliseconds = 50 / 3;
-var currentDecision;
 var scoreHTML = document.querySelector(".score-p");
 scoreHTML.innerText = linesClearedScore.toString();
 var firstBaby = new individual();
 var numberOfRuns = 0;
 var goodBabies = [];
+var currentDecision;
 var goodBaby = new individual();
-goodBaby.genes.pointsGene = 200000;
+goodBaby.randomGenes();
+goodBaby.genes.pointsGene = 2000;
 goodBaby.genes.blankPocketGene = 20;
 goodBaby.genes.oneRowFilledGene = 10;
 goodBaby.genes.twoRowsFilledGene = 25;
 goodBaby.genes.threeRowsFilledGene = 45;
-goodBaby.genes.fourRowsFilledGene = 80;
-goodBaby.genes.heightPenaltyGene = 2.5;
+goodBaby.genes.fourRowsFilledGene = 70;
+goodBaby.genes.heightPenaltyGene = 1.5;
 goodBaby.genes.consecutiveRowGene = 1.3;
 goodBaby.genes.borderGene = 1.3;
 //template 1 to 4 go in clockwise
@@ -235,7 +236,7 @@ function haveYouDied() {
                 firstBaby.fitness = linesClearedScore;
                 goodBabies.push(firstBaby);
             }
-            if (numberOfRuns > 5) {
+            if (numberOfRuns > 100) {
                 gameOver = true;
                 // clearInterval(gravity);
                 // gameBoard = [];
@@ -246,6 +247,8 @@ function haveYouDied() {
             }
             else {
                 linesClearedScore = 0;
+                //here is where we create a new baby
+                //if we were iterating through a population
                 setupBoard();
             }
         }
@@ -391,7 +394,6 @@ function moveDown() {
             checkLineFilled();
             //kill game here if resultant board has a piece at the ceiling
             haveYouDied();
-            // goGoGravity();
             return;
         }
     }
@@ -447,6 +449,7 @@ function allTheWayDown() {
             }
         }
     }
+    // clearInterval(gravity);
     //reset piece rotation state for the next piece
     pieceRotationState = 0;
     for (var i = 1; i < boardHeight; i++) {
@@ -474,7 +477,7 @@ function allTheWayDown() {
     checkLineFilled();
     //kill game here if resultant board has a piece at the ceiling
     haveYouDied();
-    // FRIENDthinking();
+    // setTimeout(FRIENDthinking, 200);
 }
 function rotatePiece(tetronomino, clockwise) {
     //get reference position of anchor
@@ -685,29 +688,29 @@ function gameClock() {
     //this will handle our events that happen
     //at certain times in the game
     //increment our game time
-    gameTime++;
-    //reset clock to first sixtieth of the second
-    if (gameTime === 60) {
-        gameTime = 0;
-    }
-    if (gameTime === 1 && pause === false) {
-        currentDecision = FRIENDthinking();
-    }
-    if (gameTime === 30 && pause === false) {
-        FRIENDmove(currentDecision);
-    }
-    // move piece down once every second
+    // gameTime++;
+    // //reset clock to first sixtieth of the second
+    // if (gameTime === 60) {
+    //   gameTime = 0;
+    // }
+    // if (gameTime === 1 && pause === false) {
+    //   currentDecision = FRIENDthinking();
+    // }
+    // if (gameTime === 30 && pause === false) {
+    //   FRIENDmove(currentDecision);
+    // }
+    // // move piece down once every second
     // if (gameTime === 59 && pause === false) {
     //   moveDown();
     // }
     //add ai think, ai move
-    // currentDecision = FRIENDthinking();
-    // FRIENDmove(currentDecision);
+    currentDecision = FRIENDthinking();
+    FRIENDmove(currentDecision);
     //code to run to make everything happen instantly
 }
 function gameClockToggle() {
     if (gameClockToggleState === true) {
-        gameClockIntervalFunction = setInterval(gameClock, sixtiethOfASecondInMilliseconds);
+        gameClockIntervalFunction = setInterval(gameClock, 1);
         gameClockToggleState = false;
     }
     else {

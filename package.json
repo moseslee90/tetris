@@ -1,0 +1,22 @@
+{
+  "name": "tetris",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tetris-node.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moseslee90/tetris.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/moseslee90/tetris/issues"
+  },
+  "homepage": "https://github.com/moseslee90/tetris#readme",
+  "dependencies": {
+    "jsonfile": "^5.0.0"
+  }
+}

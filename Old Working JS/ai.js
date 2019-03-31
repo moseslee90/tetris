@@ -3,26 +3,14 @@
 //functions here will manipulate an imaginary version of the gameBoardAI
 //there will be an array of decisions that gets generated
 //each decision is scored based on the number of objectives it achieves.
-//moveRightAI and moveLeftAI have to have a limiter set into them
-//get moveRightAI and moveLeftAI to return some value
-//if they hit the edge or obstacle
-var aiGameBoard = /** @class */ (function () {
-    function aiGameBoard(right) {
-        this.board = JSON.parse(JSON.stringify(gameBoard));
-        this.right = right;
-        this.points = 100;
-    }
-    return aiGameBoard;
-}());
-var aiGameBoardV2 = /** @class */ (function () {
-    function aiGameBoardV2(newBoard) {
-        this.board = JSON.parse(JSON.stringify(newBoard));
-        this.points = 100;
-    }
-    return aiGameBoardV2;
-}());
 function FRIENDthinking() {
-    var resultDecisionsAI = [];
+    var aiGameBoardV2 = /** @class */ (function () {
+        function aiGameBoardV2(newBoard) {
+            this.board = JSON.parse(JSON.stringify(newBoard));
+            this.points = 100;
+        }
+        return aiGameBoardV2;
+    }());
     function examineBoard(aiGameBoardObject, baby) {
         var points = baby.genes.pointsGene;
         //let's try to create an individual with genes
@@ -156,109 +144,16 @@ function FRIENDthinking() {
         }
         return minColumnsToLeftEdge;
     }
-    function evaluateSecondBoard(secondBoard, rotations, direction, moves) {
-        var maximumRight = maxRight(secondBoard);
-        var maximumLeft = maxLeft(secondBoard);
-        for (var k = 1; k < maximumLeft; k++) {
-            var aiBoard = new aiGameBoardV2(secondBoard);
-            aiBoard.right = direction;
-            aiBoard.id = moves;
-            aiBoard.rotate = rotations;
-            aiBoard.board = moveLeftAI(k, aiBoard.board);
-            aiBoard.board = allTheWayDownAI(aiBoard.board);
-            resultDecisionsAI.push(aiBoard);
-        }
-        for (var k = 0; k < maximumRight; k++) {
-            var aiBoard = new aiGameBoardV2(secondBoard);
-            aiBoard.right = direction;
-            aiBoard.id = moves;
-            aiBoard.rotate = rotations;
-            aiBoard.board = moveRightAI(k, aiBoard.board);
-            aiBoard.board = allTheWayDownAI(aiBoard.board);
-            // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
-            resultDecisionsAI.push(aiBoard);
-        }
-        //for each rotation, we need to recalculate maximumRight and maximum Left
-        //maximumLeft and Right can recalculate based on the board passed into them
-        //rotate, pass resultant board into maximumRIght/Left, get a constant
-        //and use that constant to loop through
-        var firstRotateBoardR = new aiGameBoardV2(secondBoard);
-        firstRotateBoardR.board = rotatePieceAI(firstRotateBoardR.board, holdingPiece, 1);
-        var maxRightR1 = maxRight(firstRotateBoardR.board);
-        for (var k = 0; k < maxRightR1; k++) {
-            var aiBoard = new aiGameBoardV2(firstRotateBoardR.board);
-            aiBoard.right = direction;
-            aiBoard.id = moves;
-            aiBoard.rotate = rotations;
-            aiBoard.board = moveRightAI(k, aiBoard.board);
-            aiBoard.board = allTheWayDownAI(aiBoard.board);
-            resultDecisionsAI.push(aiBoard);
-        }
-        var secondRotateBoardR = new aiGameBoardV2(secondBoard);
-        secondRotateBoardR.board = rotatePieceAI(secondRotateBoardR.board, holdingPiece, 2);
-        var maxRightR2 = maxRight(secondRotateBoardR.board);
-        for (var k = 0; k < maxRightR2; k++) {
-            var aiBoard = new aiGameBoardV2(secondRotateBoardR.board);
-            aiBoard.right = direction;
-            aiBoard.id = moves;
-            aiBoard.rotate = rotations;
-            aiBoard.board = moveRightAI(k, aiBoard.board);
-            aiBoard.board = allTheWayDownAI(aiBoard.board);
-            resultDecisionsAI.push(aiBoard);
-        }
-        var thirdRotateBoardR = new aiGameBoardV2(secondBoard);
-        thirdRotateBoardR.board = rotatePieceAI(thirdRotateBoardR.board, holdingPiece, 3);
-        var maxRightR3 = maxRight(thirdRotateBoardR.board);
-        for (var k = 0; k < maxRightR3; k++) {
-            var aiBoard = new aiGameBoardV2(thirdRotateBoardR.board);
-            aiBoard.right = direction;
-            aiBoard.id = moves;
-            aiBoard.rotate = rotations;
-            aiBoard.board = moveRightAI(k, aiBoard.board);
-            aiBoard.board = allTheWayDownAI(aiBoard.board);
-            resultDecisionsAI.push(aiBoard);
-        }
-        var firstRotateBoardL = new aiGameBoardV2(firstRotateBoardR.board);
-        var maxLeftR1 = maxLeft(firstRotateBoardL.board);
-        for (var k = 0; k < maxLeftR1; k++) {
-            var aiBoard = new aiGameBoardV2(firstRotateBoardL.board);
-            aiBoard.right = direction;
-            aiBoard.id = moves;
-            aiBoard.rotate = rotations;
-            aiBoard.board = moveLeftAI(k, aiBoard.board);
-            aiBoard.board = allTheWayDownAI(aiBoard.board);
-            resultDecisionsAI.push(aiBoard);
-        }
-        var secondRotateBoardL = new aiGameBoardV2(secondRotateBoardR.board);
-        var maxLeftR2 = maxLeft(secondRotateBoardL.board);
-        for (var k = 0; k < maxLeftR2; k++) {
-            var aiBoard = new aiGameBoardV2(secondRotateBoardL.board);
-            aiBoard.right = direction;
-            aiBoard.id = moves;
-            aiBoard.rotate = rotations;
-            aiBoard.board = moveLeftAI(k, aiBoard.board);
-            aiBoard.board = allTheWayDownAI(aiBoard.board);
-            resultDecisionsAI.push(aiBoard);
-        }
-        var thirdRotateBoardL = new aiGameBoardV2(thirdRotateBoardR.board);
-        var maxLeftR3 = maxLeft(thirdRotateBoardL.board);
-        for (var k = 0; k < maxLeftR3; k++) {
-            var aiBoard = new aiGameBoardV2(thirdRotateBoardL.board);
-            aiBoard.right = direction;
-            aiBoard.id = moves;
-            aiBoard.rotate = rotations;
-            aiBoard.board = moveLeftAI(k, aiBoard.board);
-            aiBoard.board = allTheWayDownAI(aiBoard.board);
-            resultDecisionsAI.push(aiBoard);
-        }
-    }
     //edgeHit would be a variable that helps us determine if the edge has been hit
     //to get a limit for moveRight/moveLeft
     if (gameOver === true) {
     }
     else {
+        var edgeHit = false;
+        var rightMovesAI = 0;
         var maximumRight = maxRight(gameBoard);
         var maximumLeft = maxLeft(gameBoard);
+        var resultDecisionsAI_1 = [];
         for (var k = 1; k < maximumLeft; k++) {
             var aiBoard = new aiGameBoardV2(gameBoard);
             aiBoard.right = false;
@@ -266,13 +161,8 @@ function FRIENDthinking() {
             aiBoard.rotate = 0;
             aiBoard.board = moveLeftAI(k, aiBoard.board);
             aiBoard.board = allTheWayDownAI(aiBoard.board);
-            //clear lines on board to prepare for next piece
-            aiBoard.board = checkLineFilledAI(aiBoard.board);
-            aiBoard.board = generateNewPieceAI(aiBoard.board, holdingPiece.template[0], spawnX, spawnY);
-            //pass in the board with a new piece here and allow
-            //this functions to iterate through all the possible
-            //permutations with this second piece in consideration
-            evaluateSecondBoard(aiBoard.board, aiBoard.rotate, aiBoard.right, aiBoard.id);
+            // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
+            resultDecisionsAI_1.push(aiBoard);
         }
         for (var k = 0; k < maximumRight; k++) {
             var aiBoard = new aiGameBoardV2(gameBoard);
@@ -282,9 +172,7 @@ function FRIENDthinking() {
             aiBoard.board = moveRightAI(k, aiBoard.board);
             aiBoard.board = allTheWayDownAI(aiBoard.board);
             // resultDecisionsAI.push(allTheWayDownAI(moveRightAI(k, aiBoard.board)));
-            aiBoard.board = checkLineFilledAI(aiBoard.board);
-            aiBoard.board = generateNewPieceAI(aiBoard.board, holdingPiece.template[0], spawnX, spawnY);
-            evaluateSecondBoard(aiBoard.board, aiBoard.rotate, aiBoard.right, aiBoard.id);
+            resultDecisionsAI_1.push(aiBoard);
         }
         //for each rotation, we need to recalculate maximumRight and maximum Left
         //maximumLeft and Right can recalculate based on the board passed into them
@@ -300,37 +188,7 @@ function FRIENDthinking() {
             aiBoard.rotate = 1;
             aiBoard.board = moveRightAI(k, aiBoard.board);
             aiBoard.board = allTheWayDownAI(aiBoard.board);
-            aiBoard.board = checkLineFilledAI(aiBoard.board);
-            aiBoard.board = generateNewPieceAI(aiBoard.board, holdingPiece.template[0], spawnX, spawnY);
-            evaluateSecondBoard(aiBoard.board, aiBoard.rotate, aiBoard.right, aiBoard.id);
-        }
-        var secondRotateBoardR = new aiGameBoardV2(gameBoard);
-        secondRotateBoardR.board = rotatePieceAI(secondRotateBoardR.board, currentPiece, 2);
-        var maxRightR2 = maxRight(secondRotateBoardR.board);
-        for (var k = 0; k < maxRightR2; k++) {
-            var aiBoard = new aiGameBoardV2(secondRotateBoardR.board);
-            aiBoard.right = true;
-            aiBoard.id = k;
-            aiBoard.rotate = 2;
-            aiBoard.board = moveRightAI(k, aiBoard.board);
-            aiBoard.board = allTheWayDownAI(aiBoard.board);
-            aiBoard.board = checkLineFilledAI(aiBoard.board);
-            aiBoard.board = generateNewPieceAI(aiBoard.board, holdingPiece.template[0], spawnX, spawnY);
-            evaluateSecondBoard(aiBoard.board, aiBoard.rotate, aiBoard.right, aiBoard.id);
-        }
-        var thirdRotateBoardR = new aiGameBoardV2(gameBoard);
-        thirdRotateBoardR.board = rotatePieceAI(thirdRotateBoardR.board, currentPiece, 3);
-        var maxRightR3 = maxRight(thirdRotateBoardR.board);
-        for (var k = 0; k < maxRightR3; k++) {
-            var aiBoard = new aiGameBoardV2(thirdRotateBoardR.board);
-            aiBoard.right = true;
-            aiBoard.id = k;
-            aiBoard.rotate = 3;
-            aiBoard.board = moveRightAI(k, aiBoard.board);
-            aiBoard.board = allTheWayDownAI(aiBoard.board);
-            aiBoard.board = checkLineFilledAI(aiBoard.board);
-            aiBoard.board = generateNewPieceAI(aiBoard.board, holdingPiece.template[0], spawnX, spawnY);
-            evaluateSecondBoard(aiBoard.board, aiBoard.rotate, aiBoard.right, aiBoard.id);
+            resultDecisionsAI_1.push(aiBoard);
         }
         var firstRotateBoardL = new aiGameBoardV2(firstRotateBoardR.board);
         var maxLeftR1 = maxLeft(firstRotateBoardL.board);
@@ -341,16 +199,25 @@ function FRIENDthinking() {
             aiBoard.rotate = 1;
             aiBoard.board = moveLeftAI(k, aiBoard.board);
             aiBoard.board = allTheWayDownAI(aiBoard.board);
-            aiBoard.board = checkLineFilledAI(aiBoard.board);
-            aiBoard.board = generateNewPieceAI(aiBoard.board, holdingPiece.template[0], spawnX, spawnY);
-            evaluateSecondBoard(aiBoard.board, aiBoard.rotate, aiBoard.right, aiBoard.id);
+            resultDecisionsAI_1.push(aiBoard);
+        }
+        //firstRotateBoardR and firstRotateBoardL are no longer needed
+        firstRotateBoardR.board = [];
+        firstRotateBoardL.board = [];
+        //empty them
+        var secondRotateBoardR = new aiGameBoardV2(gameBoard);
+        secondRotateBoardR.board = rotatePieceAI(secondRotateBoardR.board, currentPiece, 2);
+        var maxRightR2 = maxRight(secondRotateBoardR.board);
+        for (var k = 0; k < maxRightR2; k++) {
+            var aiBoard = new aiGameBoardV2(secondRotateBoardR.board);
+            aiBoard.right = true;
+            aiBoard.id = k;
+            aiBoard.rotate = 2;
+            aiBoard.board = moveRightAI(k, aiBoard.board);
+            aiBoard.board = allTheWayDownAI(aiBoard.board);
+            resultDecisionsAI_1.push(aiBoard);
         }
         var secondRotateBoardL = new aiGameBoardV2(secondRotateBoardR.board);
-        // secondRotateBoardL.board = rotatePieceAI(
-        //   secondRotateBoardL.board,
-        //   currentPiece,
-        //   2
-        // );
         var maxLeftR2 = maxLeft(secondRotateBoardL.board);
         for (var k = 0; k < maxLeftR2; k++) {
             var aiBoard = new aiGameBoardV2(secondRotateBoardL.board);
@@ -359,16 +226,23 @@ function FRIENDthinking() {
             aiBoard.rotate = 2;
             aiBoard.board = moveLeftAI(k, aiBoard.board);
             aiBoard.board = allTheWayDownAI(aiBoard.board);
-            aiBoard.board = checkLineFilledAI(aiBoard.board);
-            aiBoard.board = generateNewPieceAI(aiBoard.board, holdingPiece.template[0], spawnX, spawnY);
-            evaluateSecondBoard(aiBoard.board, aiBoard.rotate, aiBoard.right, aiBoard.id);
+            resultDecisionsAI_1.push(aiBoard);
+        }
+        //secondRotateBoardR and secondRotateBoardL are no longer needed
+        secondRotateBoardR.board = [];
+        var thirdRotateBoardR = new aiGameBoardV2(gameBoard);
+        thirdRotateBoardR.board = rotatePieceAI(thirdRotateBoardR.board, currentPiece, 3);
+        var maxRightR3 = maxRight(thirdRotateBoardR.board);
+        for (var k = 0; k < maxRightR3; k++) {
+            var aiBoard = new aiGameBoardV2(thirdRotateBoardR.board);
+            aiBoard.right = true;
+            aiBoard.id = k;
+            aiBoard.rotate = 3;
+            aiBoard.board = moveRightAI(k, aiBoard.board);
+            aiBoard.board = allTheWayDownAI(aiBoard.board);
+            resultDecisionsAI_1.push(aiBoard);
         }
         var thirdRotateBoardL = new aiGameBoardV2(thirdRotateBoardR.board);
-        // thirdRotateBoardL.board = rotatePieceAI(
-        //   thirdRotateBoardL.board,
-        //   currentPiece,
-        //   3
-        // );
         var maxLeftR3 = maxLeft(thirdRotateBoardL.board);
         for (var k = 0; k < maxLeftR3; k++) {
             var aiBoard = new aiGameBoardV2(thirdRotateBoardL.board);
@@ -377,25 +251,22 @@ function FRIENDthinking() {
             aiBoard.rotate = 3;
             aiBoard.board = moveLeftAI(k, aiBoard.board);
             aiBoard.board = allTheWayDownAI(aiBoard.board);
-            aiBoard.board = checkLineFilledAI(aiBoard.board);
-            aiBoard.board = generateNewPieceAI(aiBoard.board, holdingPiece.template[0], spawnX, spawnY);
-            evaluateSecondBoard(aiBoard.board, aiBoard.rotate, aiBoard.right, aiBoard.id);
+            resultDecisionsAI_1.push(aiBoard);
         }
         // console.log(resultDecisionsAI);
-        for (var k = 0; k < resultDecisionsAI.length; k++) {
-            examineBoard(resultDecisionsAI[k], goodBaby);
+        for (var k = 0; k < resultDecisionsAI_1.length; k++) {
+            examineBoard(resultDecisionsAI_1[k], goodBaby);
         }
-        // console.log(resultDecisionsAI);
         var highestScore = 0;
         var highestScoreID = 0;
         var highestScoreRight = true;
         var highestScoreRotate = 0;
-        for (var k = 0; k < resultDecisionsAI.length; k++) {
-            if (resultDecisionsAI[k].points > highestScore) {
-                highestScore = resultDecisionsAI[k].points;
-                highestScoreID = resultDecisionsAI[k].id;
-                highestScoreRight = resultDecisionsAI[k].right;
-                highestScoreRotate = resultDecisionsAI[k].rotate;
+        for (var k = 0; k < resultDecisionsAI_1.length; k++) {
+            if (resultDecisionsAI_1[k].points > highestScore) {
+                highestScore = resultDecisionsAI_1[k].points;
+                highestScoreID = resultDecisionsAI_1[k].id;
+                highestScoreRight = resultDecisionsAI_1[k].right;
+                highestScoreRotate = resultDecisionsAI_1[k].rotate;
             }
         }
         var finalDecision = {
@@ -404,10 +275,24 @@ function FRIENDthinking() {
             moves: highestScoreID
         };
         function emptyDecisions() {
-            resultDecisionsAI.length = 0;
+            resultDecisionsAI_1.length = 0;
         }
         emptyDecisions();
         return finalDecision;
+        // let direction: string = "none";
+        // if (highestScoreRight === true) {
+        //   direction = "right";
+        // } else {
+        //   direction = "left";
+        // }
+        // console.log(
+        //   "Rotate: " +
+        //     highestScoreRotate +
+        //     " Move " +
+        //     direction +
+        //     " " +
+        //     highestScoreID
+        // );
     }
 }
 function FRIENDmove(decision) {
@@ -425,27 +310,6 @@ function FRIENDmove(decision) {
         }
     }
     allTheWayDown();
-}
-function generateNewPieceAI(board, template, positionX, positionY) {
-    //function generates a new piece based on the template given,
-    //at the specified location entered, with the position being the left corner of the template
-    //add a loop check of target cells to be filled with new template
-    //if cells on the left currently contain a wall (3) or other piece (2),
-    //but the ones on the right do not, move translation to the right posX+1
-    //only do these checks if the transformation contains a piece in that row or column
-    //vice versa for the cells containing occupants on the right side but not on the left posX-1
-    //if both the left and right contain neighbors, do nothing
-    //keep pieces from phasing into the ground by not allowing transformations which occupy already occupied bottom cells.
-    for (var i = 0; i < template.length; i++) {
-        for (var j = 0; j < template[i].length; j++) {
-            if (template[i][j] === 1 || template[i][j] === 4) {
-                var yCoordinate = positionY + i;
-                var xCoordinate = positionX + j;
-                board[yCoordinate][xCoordinate] = template[i][j];
-            }
-        }
-    }
-    return board;
 }
 function moveRightAI(moves, gameBoardAI) {
     for (var i = boardWidth - 2; i > 0; i--) {
@@ -522,52 +386,6 @@ function allTheWayDownAI(gameBoardAI) {
     // checkLineFilled();
     //kill game here if resultant board has a piece at the ceiling
     // haveYouDied();
-}
-function checkLineFilledAI(board) {
-    //delete all rows before pushing lines above down
-    //actually we shld delete a row, move lines down, then repeat the check and
-    //delete new rows if they exist
-    var rowWhichWasDeleted = 1;
-    //keep a reference of the row which was deleted so we know to only move
-    //rows above this row down
-    for (var i = 1; i < boardHeight - 1; i++) {
-        //everytime we commence scanning a new row, make sure rowFilled is reset to 0
-        var rowFilled = 0;
-        for (var j = boardWidth - 2; j > 0; j--) {
-            if (board[i][j] === 2) {
-                rowFilled++;
-            }
-        }
-        //if a row is filled
-        if (rowFilled === boardWidth - 2) {
-            //deleteRow
-            for (var j = boardWidth - 2; j > 0; j--) {
-                //update array: delete that row in the array
-                board[i].splice(j, 1, 0);
-            }
-            //up to this point, the row has been deleted, now we need to move the pieces
-            //which have a value of 2 down
-            //since we only want to delete one row first, we shld get out of the loop
-            //save this row to rowWhichWasDeleted
-            rowWhichWasDeleted = i;
-            //move 2s still remaining down by scanning upwards of the row which was deleted
-            for (var k = rowWhichWasDeleted + 1; k < boardHeight - 1; k++) {
-                for (var l = boardWidth - 2; l > 0; l--) {
-                    if (board[k][l] === 2) {
-                        //change the value of that cell in the array to a blank cell
-                        board[k].splice(l, 1, 0);
-                        board[k - 1].splice(l, 1, 2);
-                        //remove the fixed piece property of the cell's previous occupied cell
-                    }
-                }
-            }
-            //modifier to i to ensure that after a row is deleted, code checks that line again
-            //after the cells have dropped down to see if that new row has a filled row.
-            i--;
-        }
-        //code to delete row ends here, scanning of next line continues
-    }
-    return board;
 }
 function rotatePieceAI(
 //pass in the very first boardTemplate and get this function to return
