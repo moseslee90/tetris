@@ -446,7 +446,7 @@ function FRIENDthinking() {
         }
         // console.log(resultDecisionsAI);
         for (var k = 0; k < resultDecisionsAI.length; k++) {
-            examineBoard(resultDecisionsAI[k], goodBaby);
+            examineBoard(resultDecisionsAI[k], firstBaby);
         }
         // console.log(resultDecisionsAI);
         var highestScore = 0;
@@ -806,8 +806,8 @@ function coordinatesHolding(x, y) {
 }
 function setupBoard() {
     numberOfRuns++;
-    // firstBaby = new individual();
-    // firstBaby.randomGenes();
+    firstBaby = new individual();
+    firstBaby.randomGenes();
     gameBoard = [];
     //creates board from bottom right to top left,
     for (var i = boardHeight - 1; i > -1; i--) {
@@ -885,10 +885,10 @@ function haveYouDied() {
             if (linesClearedScore > 80) {
                 //good babies go here
                 console.log("good baby found! Fitness: " + linesClearedScore);
-                // firstBaby.fitness = linesClearedScore;
-                // goodBabies.push(firstBaby);
+                firstBaby.fitness = linesClearedScore;
+                goodBabies.push(firstBaby);
             }
-            if (numberOfRuns > 100) {
+            if (numberOfRuns > 1000) {
                 gameOver = true;
                 console.log("100 runs over!");
                 jsonFile.readFile(file, function (err, obj) {

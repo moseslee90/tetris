@@ -1,1 +1,102 @@
-{"population":[{"genes":{"pointsGene":2000,"heightPenaltyGene":5.707205043700072,"oneRowFilledGene":2.0062357068507404,"twoRowsFilledGene":30.405627894034026,"threeRowsFilledGene":52.50269283653456,"fourRowsFilledGene":70.10961398902526,"consecutiveRowGene":2.7613549167934863,"blankPocketGene":0.6686797922716099,"borderGene":1.2630375818949244},"fitness":93},{"genes":{"pointsGene":2000,"heightPenaltyGene":4.026138787580156,"oneRowFilledGene":10.614207151218501,"twoRowsFilledGene":28.365839429073816,"threeRowsFilledGene":53.584326050195386,"fourRowsFilledGene":70.0209155500004,"consecutiveRowGene":2.3364435946567808,"blankPocketGene":9.737872446110872,"borderGene":1.218805829935858},"fitness":97},{"genes":{"pointsGene":2000,"heightPenaltyGene":2.4684265255533733,"oneRowFilledGene":19.91574846346968,"twoRowsFilledGene":32.74431878103505,"threeRowsFilledGene":58.19255772234459,"fourRowsFilledGene":73.94784932001104,"consecutiveRowGene":1.4236241009218256,"blankPocketGene":12.247306613031924,"borderGene":2.8053127756656537},"fitness":87}]}
+{
+  "population": [
+    {
+      "genes": {
+        "pointsGene": 2000,
+        "heightPenaltyGene": 5.707205043700072,
+        "oneRowFilledGene": 2.0062357068507404,
+        "twoRowsFilledGene": 30.405627894034026,
+        "threeRowsFilledGene": 52.50269283653456,
+        "fourRowsFilledGene": 70.10961398902526,
+        "consecutiveRowGene": 2.7613549167934863,
+        "blankPocketGene": 0.6686797922716099,
+        "borderGene": 1.2630375818949244
+      },
+      "fitness": 93
+    },
+    {
+      "genes": {
+        "pointsGene": 2000,
+        "heightPenaltyGene": 4.026138787580156,
+        "oneRowFilledGene": 10.614207151218501,
+        "twoRowsFilledGene": 28.365839429073816,
+        "threeRowsFilledGene": 53.584326050195386,
+        "fourRowsFilledGene": 70.0209155500004,
+        "consecutiveRowGene": 2.3364435946567808,
+        "blankPocketGene": 9.737872446110872,
+        "borderGene": 1.218805829935858
+      },
+      "fitness": 97
+    },
+    {
+      "genes": {
+        "pointsGene": 2000,
+        "heightPenaltyGene": 2.4684265255533733,
+        "oneRowFilledGene": 19.91574846346968,
+        "twoRowsFilledGene": 32.74431878103505,
+        "threeRowsFilledGene": 58.19255772234459,
+        "fourRowsFilledGene": 73.94784932001104,
+        "consecutiveRowGene": 1.4236241009218256,
+        "blankPocketGene": 12.247306613031924,
+        "borderGene": 2.8053127756656537
+      },
+      "fitness": 87
+    },
+    {
+      "genes": {
+        "pointsGene": 2000,
+        "heightPenaltyGene": 1.7428602805984463,
+        "oneRowFilledGene": 8.809480985454673,
+        "twoRowsFilledGene": 39.537136463369265,
+        "threeRowsFilledGene": 46.19983900113987,
+        "fourRowsFilledGene": 66.52063618868908,
+        "consecutiveRowGene": 1.190068507375183,
+        "blankPocketGene": 3.5027964664516626,
+        "borderGene": 2.469405766488501
+      },
+      "fitness": 99
+    },
+    {
+      "genes": {
+        "pointsGene": 2000,
+        "heightPenaltyGene": 1.7827271606356245,
+        "oneRowFilledGene": 20.542363039319305,
+        "twoRowsFilledGene": 37.57906806469663,
+        "threeRowsFilledGene": 47.77441679444779,
+        "fourRowsFilledGene": 78.39187823847918,
+        "consecutiveRowGene": 1.0230120939748384,
+        "blankPocketGene": 15.015534855681738,
+        "borderGene": 3.7428385843566767
+      },
+      "fitness": 107
+    },
+    {
+      "genes": {
+        "pointsGene": 2000,
+        "heightPenaltyGene": 1.5344389215645184,
+        "oneRowFilledGene": 11.822906944238348,
+        "twoRowsFilledGene": 20.201512139610564,
+        "threeRowsFilledGene": 44.046751304486094,
+        "fourRowsFilledGene": 63.681352618426246,
+        "consecutiveRowGene": 1.3813912013501812,
+        "blankPocketGene": 23.78780509218428,
+        "borderGene": 2.51342414186493
+      },
+      "fitness": 116
+    },
+    {
+      "genes": {
+        "pointsGene": 2000,
+        "heightPenaltyGene": 2.301649739307921,
+        "oneRowFilledGene": 17.463969249993607,
+        "twoRowsFilledGene": 38.2427439085733,
+        "threeRowsFilledGene": 45.65269679774437,
+        "fourRowsFilledGene": 63.99312453891821,
+        "consecutiveRowGene": 1.5670984514416806,
+        "blankPocketGene": 8.4605692022548,
+        "borderGene": 2.229150958306288
+      },
+      "fitness": 89
+    }
+  ]
+}

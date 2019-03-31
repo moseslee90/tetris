@@ -1111,7 +1111,7 @@ function haveYouDied() {
         firstBaby.fitness = linesClearedScore;
         goodBabies.push(firstBaby);
       }
-      if (numberOfRuns > 100) {
+      if (numberOfRuns > 1000) {
         gameOver = true;
         console.log("100 runs over!");
         jsonFile.readFile(file, (err, obj) => {
